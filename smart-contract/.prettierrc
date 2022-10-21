@@ -1,0 +1,21 @@
+{
+  "tabWidth": 4,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": false,
+  "printWidth": 100,
+  "overrides": [
+    {
+      "files": "*.test.ts",
+      "options": {
+        "tabWidth": 2
+      }
+    },
+    {
+      "files": "*.behavior.ts",
+      "options": {
+        "tabWidth": 2
+      }
+    }
+  ]
+}
