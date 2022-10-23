@@ -9,7 +9,7 @@ pragma solidity ^0.8.9;
  *
  * _Available since v4.3._
  */
-abstract contract IGovernorVoting {
+abstract contract IGovernanceVoting {
     enum ProposalState {
         Pending,
         Active,

@@ -5,6 +5,7 @@ pragma solidity ^0.8.9;
         and allows charities to register and be verified
  */  
 interface IGovernanceCharity {
+
     function register(address charity, bytes memory proof) external;
 
     function verify(address charity) external;

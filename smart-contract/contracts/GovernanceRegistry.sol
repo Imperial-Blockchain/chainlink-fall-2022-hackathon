@@ -24,18 +24,19 @@ contract GovernanceRegistry is IGovernanceRegistry, Ownable {
         govTreasury = _govTreasury;
     }
 
-    function setGovToken(address token) onlyOwner {
+    function setGovToken(address token) external onlyOwner {
         govToken = token;
     }
 
-    function setCharity(address charity) onlyOwner {
+    function setCharity(address charity) external onlyOwner {
         govCharity = charity;
     }
 
-    function setGovVoter(address voter) onlyOwner {
+    function setGovVoter(address voter) external onlyOwner {
         govVoter = voter;
     }
 
-    function setGovTreasury(address treasury) onlyOwner {
+    function setGovTreasury(address treasury) external onlyOwner {
         govTreasury = treasury;
     }
+}
