@@ -32,6 +32,16 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
+"@headlessui/react@^0.0.0-insiders.f66f492":
+  version "0.0.0-insiders.f66f492"
+  resolved "https://registry.yarnpkg.com/@headlessui/react/-/react-0.0.0-insiders.f66f492.tgz#f02973ecb798bd2ec37fe825978fd985d11e7bec"
+  integrity sha512-QUNWsVfla2/H8k991xwG0f2u+ktQeglDtc/Jekjsgw+P97DejpdS18mVj33PCcspVaqL70Jsz208KN7dzCx0OQ==
+
+"@heroicons/react@^2.0.12":
+  version "2.0.12"
+  resolved "https://registry.yarnpkg.com/@heroicons/react/-/react-2.0.12.tgz#7e5a16c82512f89a30266dd36f8b8465b3e3e216"
+  integrity sha512-FZxKh3i9aKIDxyALTgIpSF2t6V6/eZfF5mRu41QlwkX3Oxzecdm1u6dpft6PQGxIBwO7TKYWaMAYYL8mp/EaOg==
+
 "@humanwhocodes/config-array@^0.11.6":
   version "0.11.6"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/config-array/-/config-array-0.11.6.tgz#6a51d603a3aaf8d4cf45b42b3f2ac9318a4adc4b"
@@ -430,6 +440,11 @@ chokidar@^3.5.3:
     readdirp "~3.6.0"
   optionalDependencies:
     fsevents "~2.3.2"
+
+clsx@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/clsx/-/clsx-1.2.1.tgz#0ddc4a20a549b59c93a4116bb26f5294ca17dc12"
+  integrity sha512-EcR6r5a8bj6pu3ycsa/E/cKVGuTgZJZdsyUYHOksG/UHIiKfjxzRxYJpyVBwYaQeOvghal9fcc4PidlgzugAQg==
 
 color-convert@^2.0.1:
   version "2.0.1"
