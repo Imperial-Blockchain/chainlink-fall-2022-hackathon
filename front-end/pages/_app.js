@@ -1,3 +1,4 @@
+import Footer from "../components/Footer/Footer";
 import Navbar from "../components/Navbar";
 
 import "../styles/globals.css";
@@ -5,8 +6,11 @@ import "../styles/globals.css";
 function MyApp({ Component, pageProps }) {
   return (
     <>
-      <Navbar />
-      <Component {...pageProps} />
+      <main style={{ minHeight: "calc(100vh - 150px)" }}>
+        <Navbar />
+        <Component {...pageProps} />
+      </main>
+      <Footer />
     </>
   );
 }

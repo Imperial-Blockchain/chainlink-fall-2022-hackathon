@@ -1,7 +1,13 @@
-import React from "react";
+import Card from "../../components/Card";
 
 const CurrentContest = () => {
-  return <div>CurrentContest</div>;
+  return (
+    <>
+      <Card as="projectCard" />
+      <Card as="projectCard" />
+      <Card as="projectCard" />
+    </>
+  );
 };
 
 export default CurrentContest;

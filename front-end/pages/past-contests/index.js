@@ -1,7 +1,7 @@
-import React from "react";
+import Card from "../../components/Card";
 
 const PastContests = () => {
-  return <div>PastContests</div>;
+  return <Card as="pastContestCard" />;
 };
 
 export default PastContests;
