@@ -83,9 +83,9 @@ export default function Navbar() {
             </div>
           </Disclosure.Panel>
 
-          <div className="walletconnect">
+          {/* <div className="walletconnect">
             <ConnectButton moralisAuth={false}></ConnectButton>
-          </div>
+          </div> */}
         </>
       )}
     </Disclosure>
