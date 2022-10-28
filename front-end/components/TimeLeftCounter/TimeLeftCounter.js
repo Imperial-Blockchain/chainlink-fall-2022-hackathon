@@ -1,5 +1,3 @@
-import Card from "../Card";
-
 import { useState, useEffect } from "react";
 
 const TimeLeftCounter = () => {
@@ -29,22 +27,11 @@ const TimeLeftCounter = () => {
           {getTimeLeftString(timeLeft)}
         </div>
       </div>
-
-      <h2 className="mt-3 mb-6 mx-auto text-center text-2xl font-semibold text-gray-800">
-        Projects:
-      </h2>
-
-      <div className="flex flex-wrap">
-        <Card as="projectCard" />
-        <Card as="projectCard" />
-        <Card as="projectCard" />
-      </div>
     </>
   );
 };
 
 const getTimeLeftString = (milliseconds) => {
-  console.log("mill", milliseconds);
   let seconds = Math.floor(milliseconds / 1000);
   let minutes = Math.floor(seconds / 60);
   let hours = Math.floor(minutes / 60);
@@ -54,7 +41,7 @@ const getTimeLeftString = (milliseconds) => {
   minutes = minutes % 60;
   hours = hours % 24;
 
-  return `${days} Days, ${hours} Hours, ${minutes} Minutes, ${seconds} Seconds`;
+  return `${days} d, ${hours} h, ${minutes} m, ${seconds} s`;
 };
 
 export default TimeLeftCounter;

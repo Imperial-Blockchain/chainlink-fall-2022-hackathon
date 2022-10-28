@@ -1,7 +1,15 @@
 import { Dialog } from "@headlessui/react";
 import PropTypes from "prop-types";
 
-const Modal = ({ isOpen = false, handleOpenAndClose }) => {
+const Modal = ({
+  isOpen = false,
+  handleOpenAndClose,
+  title,
+  description,
+  amount,
+  websiteUrl,
+  imgUrl,
+}) => {
   return (
     <Dialog
       open={isOpen}
@@ -13,26 +21,26 @@ const Modal = ({ isOpen = false, handleOpenAndClose }) => {
       <div className="fixed inset-0 overflow-y-auto">
         <div className="flex min-h-full items-center justify-center p-4">
           <Dialog.Panel className="bg-gray-800 text-gray-100 rounded-lg p-4 w-auto max-w-md flex flex-col justify-center items-center">
-            <Dialog.Title calssName="w-full bg-white mt-1">Unicef</Dialog.Title>
-            <Dialog.Description className="mb-2">
-              Building school for children in Kongo
-            </Dialog.Description>
-            <img
-              src="https://pbs.twimg.com/profile_images/808330362417979392/AdiQ86lk_400x400.jpg"
-              className="w-56"
-            />
-            <p className="text-center">
-              Are you sure you want to deactivate your account? All of your data
-              will be permanently removed. This action cannot be undone. Are you
-              sure you want to deactivate your account? All of your data will be
-              permanently removed. This action cannot be undone.
-            </p>
-            <button
-              class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 mt-2 rounded"
-              onClick={() => handleOpenAndClose(false)}
-            >
-              Cancel
-            </button>
+            <Dialog.Title calssName="w-full bg-white mt-1">
+              <h2 className="text-2xl font-bold">{title}</h2>
+            </Dialog.Title>
+            <img src={imgUrl} alt="Logo" className="w-56" />
+            <h2 className="text-lg font-bold">Amount needed: 7000$</h2>
+            <p className="text-center">{description}</p>
+            <a className="font-bold underline" target="blank" href={websiteUrl}>
+              More information about the project
+            </a>
+            <div className="flex w-full justify-evenly">
+              <button class="bg-blue-600 hover:bg-blue-300 text-white font-bold py-2 px-4 mt-2 rounded">
+                Vote
+              </button>
+              <button
+                class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 mt-2 rounded"
+                onClick={() => handleOpenAndClose(false)}
+              >
+                Cancel
+              </button>
+            </div>
           </Dialog.Panel>
         </div>
       </div>

@@ -1,7 +1,13 @@
 import Modal from "../Modal";
 import { useState } from "react";
 
-const ProjectCard = () => {
+const ProjectCard = ({
+  amountNeeded,
+  description,
+  imgUrl,
+  name,
+  websiteUrl,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const handleOpenModal = () => {
     setIsOpen((prev) => !prev);
@@ -20,13 +26,9 @@ const ProjectCard = () => {
         ></div>
         <div className="border-r border-b border-l border-gray-400 lg:border-l-0 lg:border-t lg:border-gray-400 bg-white rounded-b lg:rounded-b-none lg:rounded-r p-4 flex flex-col justify-between leading-normal">
           <div className="mb-8">
-            <div className="text-gray-900 font-bold text-xl mb-2">
-              Helping refugess from Africa
-            </div>
+            <div className="text-gray-900 font-bold text-xl mb-2">{name}</div>
             <p className="text-gray-700 text-base">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-              Voluptatibus quia, nulla! Maiores et perferendis eaque,
-              exercitationem praesentium nihil.
+              {description.substring(0, 100) + "..."}
             </p>
           </div>
 
@@ -39,7 +41,17 @@ const ProjectCard = () => {
         </div>
       </div>
 
-      {isOpen && <Modal isOpen={isOpen} handleOpenAndClose={handleOpenModal} />}
+      {isOpen && (
+        <Modal
+          isOpen={isOpen}
+          handleOpenAndClose={handleOpenModal}
+          title={name}
+          description={description}
+          amount={amountNeeded}
+          websiteUrl={websiteUrl}
+          imgUrl={imgUrl}
+        />
+      )}
     </>
   );
 };
