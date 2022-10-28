@@ -8,36 +8,29 @@ import "./interfaces/IGovernanceRegistry.sol";
  */
 contract GovernanceRegistry is IGovernanceRegistry, Ownable {
     //----- Storage variables -----
-    address public govToken;
-    address public govCharity;
-    address public govVoter;
-    address public govTreasury;
+    address public override governanceToken;
+    address public override governanceCharity;
+    address public override governanceVoter;
+    address public override governanceTreasury;
+    address public override tokenRegistry;
 
-    constructor(
-        address _govToken,
-        address _govCharity,
-        address _govVoter,
-        address _govTreasury
-    ) Ownable() {
-        govToken = _govToken;
-        govCharity = _govCharity;
-        govVoter = _govVoter;
-        govTreasury = _govTreasury;
+    function setGovernanceToken(address token) external override onlyOwner {
+        governanceToken = token;
     }
 
-    function setGovToken(address token) external onlyOwner {
-        govToken = token;
+    function setGovernanceCharity(address charity) external override onlyOwner {
+        governanceCharity = charity;
     }
 
-    function setCharity(address charity) external onlyOwner {
-        govCharity = charity;
+    function setGovernanceVoter(address voter) external override onlyOwner {
+        governanceVoter = voter;
     }
 
-    function setGovVoter(address voter) external onlyOwner {
-        govVoter = voter;
+    function setGovernanceTreasury(address treasury) external override onlyOwner {
+        governanceTreasury = treasury;
     }
 
-    function setGovTreasury(address treasury) external onlyOwner {
-        govTreasury = treasury;
+    function setTokenRegistry(address registry) external override onlyOwner {
+        tokenRegistry = registry;
     }
 }

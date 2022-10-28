@@ -13,7 +13,7 @@ contract GovernanceCharity is IGovernanceCharity, Ownable {
 
     mapping(address => Status) private _status;
 
-    mapping(uint256 => Request) private _request;
+    mapping(uint256 => Request) private _requests;
 
     //----------------------------------------------------- modifiers
 
@@ -59,11 +59,16 @@ contract GovernanceCharity is IGovernanceCharity, Ownable {
 
     //----------------------------------------------------- accessors
 
+    function notFunded(uint256 requestId) external view override returns (bool) {
+        Request memory request = _requests[requestId];
+        return request.charity != address(0) && !request.funded;
+    }
+
     function statusOf(address charity) external view override returns (Status) {
         return _status[charity];
     }
 
     function getFundingRequest(uint256 requestId) external view override returns (Request memory) {
-        return _request[requestId];
+        return _requests[requestId];
     }
 }
