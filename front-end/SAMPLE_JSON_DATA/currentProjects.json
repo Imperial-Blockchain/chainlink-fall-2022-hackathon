@@ -1,0 +1,33 @@
+{
+    "deadline": 1700000000000,
+    "projects": [
+        {
+            "name": "Unicef",
+            "amountNeeded": "7000$",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus quia, nulla! Maiores et perferendis eaque, exercitationem praesentium nihil.",
+            "imgUrl": "https://pbs.twimg.com/profile_images/808330362417979392/AdiQ86lk_400x400.jpg",
+            "websiteUrl": "http://www.wikipedia.pl"
+        },
+        {
+            "name": "Unicef2",
+            "amountNeeded": "7000$",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus quia, nulla! Maiores et perferendis eaque, exercitationem praesentium nihil.",
+            "imgUrl": "https://pbs.twimg.com/profile_images/808330362417979392/AdiQ86lk_400x400.jpg",
+            "websiteUrl": "http://www.wikipedia.pl"
+        },
+        {
+            "name": "Unicef3",
+            "amountNeeded": "7000$",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus quia, nulla! Maiores et perferendis eaque, exercitationem praesentium nihil.",
+            "imgUrl": "https://pbs.twimg.com/profile_images/808330362417979392/AdiQ86lk_400x400.jpg",
+            "websiteUrl": "http://www.wikipedia.pl"
+        },
+        {
+            "name": "Unicef4",
+            "amountNeeded": "7000$",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus quia, nulla! Maiores et perferendis eaque, exercitationem praesentium nihil.",
+            "imgUrl": "https://pbs.twimg.com/profile_images/808330362417979392/AdiQ86lk_400x400.jpg",
+            "websiteUrl": "http://www.wikipedia.pl"
+        }
+    ]
+}
