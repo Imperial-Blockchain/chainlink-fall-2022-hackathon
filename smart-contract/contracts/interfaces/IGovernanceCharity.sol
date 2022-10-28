@@ -41,7 +41,9 @@ interface IGovernanceCharity {
         external
         returns (bool isAccepted);
 
-    //----------------------------------------------------- accessors
+    //----------------------------------------------------- accessor functions
+
+    function notFunded(uint256 requestId) external view returns (bool);
 
     function requestCounter() external view returns (uint256);
 

@@ -2,19 +2,23 @@
 pragma solidity ^0.8.9;
 
 interface IGovernanceRegistry {
-    function govToken() view external returns (address token);
+    function governanceToken() external view returns (address token);
 
-    function setGovToken(address token) external;
+    function setGovernanceToken(address token) external;
 
-    function govCharity() view external returns (address charity);
+    function governanceCharity() external view returns (address charity);
 
-    function setCharity(address charity) external;
+    function setGovernanceCharity(address charity) external;
 
-    function govVoter() view external returns (address voting);
+    function governanceVoter() external view returns (address voting);
 
-    function setGovVoter(address voting) external;
+    function setGovernanceVoter(address voting) external;
 
-    function govTreasury() view external returns (address treasury);
+    function governanceTreasury() external view returns (address treasury);
 
-    function setGovTreasury(address treasury) external;
-    }
+    function setGovernanceTreasury(address treasury) external;
+
+    function tokenRegistry() external view returns (address);
+
+    function setTokenRegistry(address registry) external;
+}
