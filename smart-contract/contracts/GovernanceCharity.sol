@@ -5,54 +5,65 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IGovernanceCharity.sol";
 
 contract GovernanceCharity is IGovernanceCharity, Ownable {
+    //----------------------------------------------------- storage
 
-    event Register(address charity, bytes proof);
-    event Verify(address charity);
+    uint256 public override requestCounter;
 
-    //Set as immutable as this will not change
-    address immutable registry;
+    address public immutable override registry;
 
-    mapping(address => bool) isVerified;
-    mapping(address => bool) isRegistered;
+    mapping(address => Status) private _status;
 
-    modifier onlyVerified() {
-        require(isVerified[msg.sender], "Not verified");
+    mapping(uint256 => Request) private _request;
+
+    //----------------------------------------------------- modifiers
+
+    modifier onlyVerified(address operator) {
+        require(_status[operator] == Status.Verified, "Not verified");
         _;
     }
 
+    //----------------------------------------------------- misc functions
 
     constructor(address _registry) Ownable() {
         registry = _registry;
-
     }
 
-    function register(address charity, bytes memory proof) external {
-        require(!isRegistered[charity] && !isVerified[charity], "Already registered");
+    function register(bytes calldata proof) external override {
+        require(_status[msg.sender] == Status.None, "Already registered");
 
-        isRegistered[charity] = true;
+        _status[msg.sender] = Status.Registered;
 
-        emit Register(charity, proof);
+        emit Registered(msg.sender, proof);
     }
 
-    function verify(address charity) external onlyOwner {
-        require(isRegistered[charity], "Not registered");
-        require(!isVerified[charity], "Already verified");
+    function verify(address charity) external override onlyOwner {
+        require(_status[charity] == Status.Registered, "Not registered");
 
-        isVerified[charity] = true;
-        emit Verify(charity);
+        _status[charity] = Status.Verified;
+        emit Verified(charity);
     }
 
-    function requestFunding(uint256 amount, uint256 timestamp) external onlyVerified returns (uint256 epoch) {
+    function requestFunding(uint256 amount, uint256 timestamp)
+        external
+        override
+        onlyVerified(msg.sender)
+        returns (uint256 epoch)
+    {}
 
+    function cancelRequest(uint256 epoch) external {}
+
+    function changeFundingAmount(uint256 epoch, uint256 newAmount)
+        external
+        returns (bool isAccepted)
+    {}
+
+    //----------------------------------------------------- accessors
+
+    function statusOf(address charity) external view override returns (Status) {
+        return _status[charity];
     }
 
-    function cancelRequest(uint256 epoch) external {
-
+    function getFundingRequest(uint256 requestId) external view override returns (Request memory) {
+        return _request[requestId];
     }
-
-    function changeFundingAmount(uint256 epoch, uint256 newAmount) external returns (bool isAccepted) {
-
-    }
-
 }
-

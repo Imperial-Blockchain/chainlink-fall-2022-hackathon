@@ -2,11 +2,11 @@
 pragma solidity ^0.8.9;
 
 interface IGovernanceToken {
-    function mint(address to, uint amount) external;
+    function mint(address to, uint256 amount) external;
 
-    function burn(address account, uint amount) external;
+    function burn(address account, uint256 amount) external;
 
-    function updateGovernorContract(address governorContract) external;
+    //----------------------------------------------------- accessor functions
 
-    function governorContract() external view returns (address);
+    function registry() external view returns (address);
 }
