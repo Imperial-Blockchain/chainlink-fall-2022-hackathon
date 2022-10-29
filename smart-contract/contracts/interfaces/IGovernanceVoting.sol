@@ -14,10 +14,7 @@ abstract contract IGovernanceVoting {
         Pending,
         Active,
         Canceled,
-        Defeated,
-        Succeeded,
         Queued,
-        Expired,
         Executed
     }
 
@@ -25,13 +22,10 @@ abstract contract IGovernanceVoting {
      * @dev Emitted when a proposal is created.
      */
     event ProposalCreated(
-        uint256 proposalId,
+        uint256 epoch,
         address proposer,
-        address[] charities,
-        string[] signatures,
-        bytes[] calldatas,
-        uint256 startBlock,
-        uint256 endBlock,
+        uint256 startTimestamp,
+        uint256 endTimestamp,
         string description
     );
 
@@ -109,9 +103,7 @@ abstract contract IGovernanceVoting {
      * @dev Hashing function used to (re)build the proposal id from the proposal details..
      */
     function hashProposal(
-        address[] memory charities,
-        uint256 epoch,
-        bytes32 descriptionHash
+        uint256 epoch
     ) public pure virtual returns (uint256);
 
     /**
@@ -192,7 +184,6 @@ abstract contract IGovernanceVoting {
      * Emits a {ProposalCreated} event.
      */
     function propose(
-        address[] memory charities,
         string memory description
     ) public virtual returns (uint256 proposalId);
 
@@ -208,6 +199,13 @@ abstract contract IGovernanceVoting {
         address[] memory charities,
         bytes32 descriptionHash
     ) public payable virtual returns (uint256 proposalId);
+
+    /**
+     * @dev Add a charity to the queued proposal or to the next one if we register too late
+
+       Ensure only GovernanceCharity can call this function
+     */
+    function addCharity(address charity) external virtual returns (uint256 epoch);
 
     /**
      * @dev Cast a vote
