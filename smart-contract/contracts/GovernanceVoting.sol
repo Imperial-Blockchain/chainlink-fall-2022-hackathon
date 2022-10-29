@@ -21,7 +21,6 @@ contract GovernanceVoting is IGovernanceVoting {
         Timers.Timestamp voteStart;
         Timers.Timestamp voteEnd;
         bool executed;
-        bool canceled;
     }
 
     /**
@@ -117,10 +116,6 @@ contract GovernanceVoting is IGovernanceVoting {
 
         if (proposal.executed) {
             return ProposalState.Executed;
-        }
-
-        if (proposal.canceled) {
-            return ProposalState.Canceled;
         }
 
         uint256 snapshot = proposalSnapshot(proposalId);
@@ -310,32 +305,6 @@ contract GovernanceVoting is IGovernanceVoting {
                 _governanceCall.clear();
             }
         }
-    }
-
-    /**
-     * @dev Internal cancel mechanism: locks up the proposal timer, preventing it from being re-submitted. Marks it as
-     * canceled to allow distinguishing it from executed proposals.
-     *
-     * Emits a {IGovernor-ProposalCanceled} event.
-     */
-    function _cancel(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) internal virtual returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
-        ProposalState status = state(proposalId);
-
-        require(
-            status != ProposalState.Canceled && status != ProposalState.Expired && status != ProposalState.Executed,
-            "Governor: proposal not active"
-        );
-        _proposals[proposalId].canceled = true;
-
-        emit ProposalCanceled(proposalId);
-
-        return proposalId;
     }
 
     /**

@@ -13,7 +13,6 @@ abstract contract IGovernanceVoting {
     enum ProposalState {
         Pending,
         Active,
-        Canceled,
         Queued,
         Executed
     }
@@ -28,11 +27,6 @@ abstract contract IGovernanceVoting {
         uint256 endTimestamp,
         string description
     );
-
-    /**
-     * @dev Emitted when a proposal is canceled.
-     */
-    event ProposalCanceled(uint256 proposalId);
 
     /**
      * @dev Emitted when a proposal is executed.
