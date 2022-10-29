@@ -12,6 +12,7 @@ const navigation = [
   { name: "Home", href: "/" },
   { name: "Past Contests", href: "/past-contests" },
   { name: "Current Contest", href: "/current-contest" },
+  { name: "Create Project", href: "/create-project" },
 ];
 
 export default function Navbar() {

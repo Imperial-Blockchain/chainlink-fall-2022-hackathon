@@ -25,7 +25,7 @@ const Modal = ({
               <h2 className="text-2xl font-bold">{title}</h2>
             </Dialog.Title>
             <img src={imgUrl} alt="Logo" className="w-56" />
-            <h2 className="text-lg font-bold">Amount needed: 7000$</h2>
+            <h2 className="text-lg font-bold">Amount needed: {amount}$</h2>
             <p className="text-center">{description}</p>
             <a className="font-bold underline" target="blank" href={websiteUrl}>
               More information about the project
