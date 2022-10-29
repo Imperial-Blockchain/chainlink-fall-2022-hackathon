@@ -11,6 +11,7 @@ pragma solidity ^0.8.9;
  */
 abstract contract IGovernanceVoting {
     enum ProposalState {
+        None,
         Pending,
         Active,
         Queued,

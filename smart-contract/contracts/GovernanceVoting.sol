@@ -224,6 +224,7 @@ contract GovernanceVoting is IGovernanceVoting {
 
     /**
      * @dev See {IGovernor-execute}.
+            This function should only be called by a chainlink operator
      */
     function execute(
         uint256 proposalId,
@@ -232,16 +233,15 @@ contract GovernanceVoting is IGovernanceVoting {
 
         ProposalState status = state(proposalId);
         require(
-            status == ProposalState.Succeeded || status == ProposalState.Queued,
+            status == ProposalState.Queued,
             "Governor: proposal not successful"
         );
-        _proposals[proposalId].executed = true;
 
         emit ProposalExecuted(proposalId);
 
-        _beforeExecute(proposalId, targets, values, calldatas, descriptionHash);
-        _execute(proposalId, targets, values, calldatas, descriptionHash);
-        _afterExecute(proposalId, targets, values, calldatas, descriptionHash);
+        _beforeExecute(proposalId, descriptionHash);
+        _execute(proposalId, descriptionHash);
+        _afterExecute(proposalId, descriptionHash);
 
         return proposalId;
     }
@@ -259,9 +259,6 @@ contract GovernanceVoting is IGovernanceVoting {
      */
     function _execute(
         uint256, /* proposalId */
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
         bytes32 /*descriptionHash*/
     ) internal virtual {
         string memory errorMessage = "Governor: call reverted without message";
@@ -276,35 +273,21 @@ contract GovernanceVoting is IGovernanceVoting {
      */
     function _beforeExecute(
         uint256, /* proposalId */
-        address[] memory targets,
-        uint256[] memory, /* values */
-        bytes[] memory calldatas,
         bytes32 /*descriptionHash*/
-    ) internal virtual {
-        if (_executor() != address(this)) {
-            for (uint256 i = 0; i < targets.length; ++i) {
-                if (targets[i] == address(this)) {
-                    _governanceCall.pushBack(keccak256(calldatas[i]));
-                }
-            }
-        }
+    ) internal  {
+
     }
 
     /**
      * @dev Hook after execution is triggered.
+            Delete the executed epoch and then queue a new one
      */
     function _afterExecute(
-        uint256, /* proposalId */
-        address[] memory, /* targets */
-        uint256[] memory, /* values */
-        bytes[] memory, /* calldatas */
+        uint256, proposalId,
         bytes32 /*descriptionHash*/
-    ) internal virtual {
-        if (_executor() != address(this)) {
-            if (!_governanceCall.empty()) {
-                _governanceCall.clear();
-            }
-        }
+    ) internal {
+        delete _proposals[]
+        currentEpoch = 
     }
 
     /**
