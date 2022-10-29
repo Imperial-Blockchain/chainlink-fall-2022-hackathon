@@ -2,7 +2,6 @@ import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Logo from "./Logo";
 import Link from "next/link";
-import { ConnectButton } from "web3uikit";
 
 import { useRouter } from "next/router";
 
@@ -83,10 +82,6 @@ export default function Navbar() {
               ))}
             </div>
           </Disclosure.Panel>
-
-          {/* <div className="walletconnect">
-            <ConnectButton moralisAuth={false}></ConnectButton>
-          </div> */}
         </>
       )}
     </Disclosure>
