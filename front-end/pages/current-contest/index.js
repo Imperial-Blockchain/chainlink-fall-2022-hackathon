@@ -16,7 +16,7 @@ const CurrentContest = ({ deadline, projects }) => {
 
       <div className="flex flex-wrap">
         {projects.map((props) => (
-          <Card as="projectCard" cardProps={props} />
+          <Card key={props.name} as="projectCard" cardProps={props} />
         ))}
       </div>
     </>

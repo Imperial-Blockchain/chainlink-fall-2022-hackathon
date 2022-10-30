@@ -4,27 +4,31 @@
     "name": "First Aid",
     "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus quia, nulla! Maiores et perferendis eaque, exercitationem praesentium nihil.",
     "imgUrl": "https://pbs.twimg.com/profile_images/808330362417979392/AdiQ86lk_400x400.jpg",
-    "websiteUrl": "http://www.wikipedia.pl"
+    "websiteUrl": "http://www.wikipedia.pl",
+    "amountNeeded": 7000
   },
   {
     "id": 2,
     "name": "Homelessness Prevention",
     "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus quia, nulla! Maiores et perferendis eaque, exercitationem praesentium nihil.",
     "imgUrl": "https://pbs.twimg.com/profile_images/808330362417979392/AdiQ86lk_400x400.jpg",
-    "websiteUrl": "http://www.wikipedia.pl"
+    "websiteUrl": "http://www.wikipedia.pl",
+    "amountNeeded": 7000
   },
   {
     "id": 3,
     "name": "Child Education",
     "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus quia, nulla! Maiores et perferendis eaque, exercitationem praesentium nihil.",
     "imgUrl": "https://pbs.twimg.com/profile_images/808330362417979392/AdiQ86lk_400x400.jpg",
-    "websiteUrl": "http://www.wikipedia.pl"
+    "websiteUrl": "http://www.wikipedia.pl",
+    "amountNeeded": 7000
   },
   {
     "id": 4,
     "name": "Food Relief",
     "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus quia, nulla! Maiores et perferendis eaque, exercitationem praesentium nihil.",
     "imgUrl": "https://pbs.twimg.com/profile_images/808330362417979392/AdiQ86lk_400x400.jpg",
-    "websiteUrl": "http://www.wikipedia.pl"
+    "websiteUrl": "http://www.wikipedia.pl",
+    "amountNeeded": 7000
   }
 ]

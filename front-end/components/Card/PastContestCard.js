@@ -1,25 +1,30 @@
-// import React from "react";
+import { useRouter } from "next/router";
 
-// const PastContestCard = ({ pastProject }) => {
-//   const { id, name, imgUrl, websiteUrl, description } = pastProject;
+const PastContestCard = ({ id, name, imgUrl, description }) => {
+  const router = useRouter();
 
-//   return (
-//     <div className="card lg:max-w-lg bg-base-100 shadow-xl">
-//       <figure className="px-10 pt-10">
-//         <img src={imgUrl} alt="Shoes" className="rounded-xl" />
-//       </figure>
-//       <div className="card-body items-center text-center">
-//         <h2 className="card-title">{name}</h2>
-//         <p>{description}</p>
+  const handleClick = () => {
+    router.push(`/past-contests/${id}`);
+  };
 
-//         <div className="card-actions">
-//           <button className="btn btn-primary">See More</button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
+  return (
+    <div key={id} className="m-3 p-2">
+      <div className="card lg:card-side bg-base-100 shadow-xl">
+        <figure>
+          <img className="w-72 h-auto" src={imgUrl} alt="Album" />
+        </figure>
+        <div className="card-body">
+          <h2 className="card-title">{name}</h2>
+          <p>{description.substr(0, 200) + "..."}</p>
+          <div className="card-actions justify-end">
+            <button onClick={handleClick} className="btn btn-primary">
+              Read More
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
-// export default PastContestCard;
-
-// Rendered past projects json data directly. Hence didn't need this. Will use it if required.
+export default PastContestCard;

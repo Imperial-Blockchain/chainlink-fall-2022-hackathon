@@ -4,7 +4,7 @@ import ProjectCard from "./ProjectCard";
 
 const Card = ({ as, cardProps }) => {
   if (as == "pastContestCard") {
-    return <PastContestCard />;
+    return <PastContestCard {...cardProps} />;
   }
 
   if (as == "projectCard") {
