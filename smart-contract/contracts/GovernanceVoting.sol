@@ -3,6 +3,8 @@ pragma solidity ^0.8.9;
 
 import "./interfaces/IGovernanceVoting.sol";
 import "./interfaces/IGovernanceRegistry.sol";
+import "./interfaces/IGovernanceTreasury.sol";
+import "./interfaces/IGovernanceToken.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Timers.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
@@ -23,10 +25,17 @@ contract GovernanceVoting is IGovernanceVoting {
         bool executed;
     }
 
+    struct CharityState {
+        address charity;
+        uint256 amount;
+        uint256 votes;
+    }
+
     /**
         @dev Immutables and Constants
      */
     IGovernanceRegistry private immutable _registry;
+    address private immutable nativeToken;
     uint256 private constant VOTING_PERIOD = 1 weeks;
     uint256 private constant VOTING_DELAY = 1 days;
     uint256 private constant DELAY_BETWEEN_VOTES = 1 days;
@@ -40,6 +49,11 @@ contract GovernanceVoting is IGovernanceVoting {
     string private _name;
 
     mapping(uint256 => ProposalCore) private _proposals;
+
+    // Used to store the current winner of a proposal
+    mapping(uint256 => CharityState) proposalWinners;
+
+    mapping(uint256 => mapping(address => CharityState)) charityVotes;
     
     // Used to store the timestamp of the proposal which has been queued/ongoing
     uint256 currentEpoch;
@@ -62,10 +76,12 @@ contract GovernanceVoting is IGovernanceVoting {
     /**
      * @dev Sets the value for {name} and {registry}
      */
-    constructor(string memory name_, IGovernanceRegistry registry_) {
+    constructor(string memory name_, IGovernanceRegistry registry_, address _token) {
         _name = name_;
         // Set registry to allow for contract address lookup
         _registry = registry_;
+
+        nativeToken = _token;
     }
 
     /**
@@ -159,8 +175,7 @@ contract GovernanceVoting is IGovernanceVoting {
      */
     function _getVotes(
         address account,
-        uint256 blockNumber,
-        bytes memory /*params*/
+        uint256 blockNumber
     ) internal view virtual override returns (uint256) {
         return IVotes(_registry.governanceToken()).getPastVotes(account, blockNumber);
     }
@@ -195,7 +210,7 @@ contract GovernanceVoting is IGovernanceVoting {
         string memory description
     ) public virtual override returns (uint256) {
         // ensure we do not have a proposal on already
-        require(currentEpoch > 0, "Proposal is already running");
+        require(currentEpoch == 0, "Proposal is already running");
 
         uint256 epoch = block.timestamp;
 
@@ -227,9 +242,8 @@ contract GovernanceVoting is IGovernanceVoting {
             This function should only be called by a chainlink operator
      */
     function execute(
-        uint256 proposalId,
-        bytes32 descriptionHash
-    ) public payable virtual override returns (uint256) {
+        uint256 proposalId
+    ) public virtual override returns (uint256) {
 
         ProposalState status = state(proposalId);
         require(
@@ -239,18 +253,18 @@ contract GovernanceVoting is IGovernanceVoting {
 
         emit ProposalExecuted(proposalId);
 
-        _beforeExecute(proposalId, descriptionHash);
-        _execute(proposalId, descriptionHash);
-        _afterExecute(proposalId, descriptionHash);
+        _beforeExecute(proposalId);
+        _execute(proposalId);
+        _afterExecute(proposalId);
 
         return proposalId;
     }
 
-    function votingDelay() override pure public {
+    function votingDelay() override pure public returns (uint256) {
         return VOTING_DELAY;
     } 
 
-    function votingPeriod() override pure public {
+    function votingPeriod() override pure public returns (uint256) {
         return VOTING_PERIOD;
     }
 
@@ -258,22 +272,21 @@ contract GovernanceVoting is IGovernanceVoting {
      * @dev Internal execution mechanism. Can be overridden to implement different execution mechanism
      */
     function _execute(
-        uint256, /* proposalId */
-        bytes32 /*descriptionHash*/
+        uint256 proposalId
     ) internal virtual {
-        string memory errorMessage = "Governor: call reverted without message";
-        for (uint256 i = 0; i < targets.length; ++i) {
-            (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
-            Address.verifyCallResult(success, returndata, errorMessage);
-        }
+        // Fetch the charity which won the proposal
+        CharityState memory charity = proposalWinners[proposalId];
+
+        IGovernanceTreasury(_registry.governanceTreasury()).sendFunds(nativeToken, charity.charity, charity.amount);
+        
+
     }
 
     /**
      * @dev Hook before execution is triggered.
      */
     function _beforeExecute(
-        uint256, /* proposalId */
-        bytes32 /*descriptionHash*/
+        uint256 /* proposalId */
     ) internal  {
 
     }
@@ -283,11 +296,11 @@ contract GovernanceVoting is IGovernanceVoting {
             Delete the executed epoch and then queue a new one
      */
     function _afterExecute(
-        uint256, proposalId,
-        bytes32 /*descriptionHash*/
+        uint256 proposalId
     ) internal {
-        delete _proposals[]
-        currentEpoch = 
+        currentEpoch = 0;
+
+        propose("");
     }
 
     /**
@@ -308,12 +321,41 @@ contract GovernanceVoting is IGovernanceVoting {
         return _getVotes(account, blockNumber, params);
     }
 
+    function _castVote(uint256 proposalId, address voter, address charity, string calldata description) internal returns (uint256 votes) {
+        require(proposalId == currentEpoch, "Voting for invalid proposal");
+
+        ProposalCore memory proposal = _proposals[proposalId];
+
+        require(block.timestamp < proposal.voteEnd);
+        require(block.timestamp > proposal.voteStart);
+
+        // Get governance token
+        IGovernanceToken govToken = IGovernanceToken(_registry.governanceToken());
+        uint256 balance = govToken.balanceOf(voter);
+        require(balance > 0, "No votes to vote with");
+
+        charityVotes[proposalId][charity].votes += balance;
+
+
+        // If the new charity has overtaken the current leader in votes
+        // Then rename them as leader
+        if (charityVotes[proposalId][charity].votes > proposalWinners[proposalId].votes) {
+            proposalWinners[proposalId] = charityVotes[proposalId][charity];
+        }
+
+        govToken.transferFrom(voter, address(this), balance);
+
+        
+
+
+    } 
+
     /**
      * @dev See {IGovernor-castVote}.
      */
-    function castVote(uint256 proposalId, uint8 support) public virtual override returns (uint256) {
+    function castVote(uint256 proposalId, address charity) public virtual override returns (uint256) {
         address voter = msg.sender;
-        return _castVote(proposalId, voter, support, "");
+        return _castVote(proposalId, voter, charity, "");
     }
 
     /**
@@ -321,44 +363,33 @@ contract GovernanceVoting is IGovernanceVoting {
      */
     function castVoteWithReason(
         uint256 proposalId,
-        uint8 support,
+        address charity,
         string calldata reason
     ) public virtual override returns (uint256) {
         address voter = msg.sender;
-        return _castVote(proposalId, voter, support, reason);
-    }
-
-    /**
-     * @dev See {IGovernor-castVoteWithReasonAndParams}.
-     */
-    function castVoteWithReasonAndParams(
-        uint256 proposalId,
-        uint8 support,
-        string calldata reason,
-        bytes memory params
-    ) public virtual override returns (uint256) {
-        address voter = msg.sender;
-        return _castVote(proposalId, voter, support, reason, params);
+        return _castVote(proposalId, voter, charity, reason);
     }
 
     /**
      * @dev See {IGovernor-castVoteBySig}.
-     */
     function castVoteBySig(
         uint256 proposalId,
-        uint8 support,
+        address charity,
         uint8 v,
         bytes32 r,
         bytes32 s
     ) public virtual override returns (uint256) {
+
+        // @audit this is vulnerable to signature replay attacks rn
         address voter = ECDSA.recover(
-            _hashTypedDataV4(keccak256(abi.encode(BALLOT_TYPEHASH, proposalId, support))),
+            _hashTypedDataV4(keccak256(abi.encode(BALLOT_TYPEHASH, proposalId, charity))),
             v,
             r,
             s
         );
-        return _castVote(proposalId, voter, support, "");
+        return _castVote(proposalId, voter, charity, "");
     }
+    */
 
     /**
      * @dev Address through which the governor executes action. Will be overloaded by module that execute actions

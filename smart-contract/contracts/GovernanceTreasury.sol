@@ -33,4 +33,8 @@ contract GovernanceTreasury is IGovernanceTreasury {
     function registry() external view override returns (address) {
         return address(_registry);
     }
+
+    function sendFunds() external {
+        
+    }
 }
