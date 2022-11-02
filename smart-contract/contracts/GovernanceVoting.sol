@@ -354,7 +354,11 @@ contract GovernanceVoting is IGovernanceVoting {
         require(votes > 0, "No votes to vote with");
 
         numVotes[proposalId][voter] += votes;
-        charityVotes[proposalId][charity].votes += votes;
+        CharityState storage entry = charityVotes[proposalId][charity];
+
+        // Make sure the charity actually registered
+        require(entry.charity != address(0));
+        entry.votes += votes;
 
 
         // If the new charity has overtaken the current leader in votes
