@@ -141,6 +141,8 @@ abstract contract IGovernanceVoting {
      */
     function addCharity(address charity, uint256 amount) external virtual returns (uint256 epoch);
 
+    function removeCharity(address charity) external virtual;
+
     /**
      * @dev Cast a vote
      *

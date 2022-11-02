@@ -35,7 +35,7 @@ interface IGovernanceCharity {
 
     function requestFunding(uint256 amount) external returns (uint256 epoch);
 
-    function cancelRequest(uint256 epoch) external;
+    function cancelRequest() external;
 
     //----------------------------------------------------- accessor functions
 

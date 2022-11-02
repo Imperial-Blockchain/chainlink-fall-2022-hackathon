@@ -113,6 +113,22 @@ contract GovernanceVoting is IGovernanceVoting {
         return currentEpoch;
     }
 
+    function removeCharity(address charity) external virtual override {
+        require(msg.sender == _registry.governanceCharity(), "Only Charity can call");
+
+        // Make sure we have a proposal running
+        require(currentEpoch > 0, "Proposal not running");
+
+        // Fetch the current epoch
+        ProposalCore storage proposal = _proposals[currentEpoch];
+
+        // Make sure that the proposal voting has not started yet
+        require(proposal.voteStart.getDeadline() > block.timestamp);
+
+        // Completely wipe out the storage value
+        delete charityVotes[currentEpoch][charity];
+    }
+
     /**
      * @dev Function to receive ETH that will be handled by the governor (disabled if executor is a third party contract)
      */
