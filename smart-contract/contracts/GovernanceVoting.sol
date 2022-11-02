@@ -93,7 +93,6 @@ contract GovernanceVoting is IGovernanceVoting {
              This only works if the charity is in the correct snapshot
      */
     function addCharity(address charity, uint256 amount) external virtual override returns (uint256) {
-        require(amount > 0, "Must request non-zero amounts");
 
         require(msg.sender == _registry.governanceCharity(), "Only Charity can call");
 
