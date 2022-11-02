@@ -14,7 +14,7 @@ contract GovernanceToken is IGovernanceToken, ERC20Votes {
     //----------------------------------------------------- modifiers
 
     modifier onlyTreasury(address sender) {
-        require(sender == _registry.govTreasury(), "Not treasury");
+        require(sender == _registry.governanceTreasury(), "Not treasury");
         _;
     }
 

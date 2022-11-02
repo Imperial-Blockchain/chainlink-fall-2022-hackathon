@@ -40,7 +40,7 @@ contract GovernanceVoting is IGovernanceVoting {
     uint256 private constant VOTING_DELAY = 1 days;
     uint256 private constant DELAY_BETWEEN_VOTES = 1 days;
 
-    string immutable BALLOT_TYPEHASH;
+    string private BALLOT_TYPEHASH;
 
     /** @dev Storage and mappings
      */
@@ -51,9 +51,12 @@ contract GovernanceVoting is IGovernanceVoting {
     mapping(uint256 => ProposalCore) private _proposals;
 
     // Used to store the current winner of a proposal
-    mapping(uint256 => CharityState) proposalWinners;
+    mapping(uint256 => CharityState) private proposalWinners;
 
-    mapping(uint256 => mapping(address => CharityState)) charityVotes;
+    mapping(uint256 => mapping(address => CharityState)) private charityVotes;
+
+    // Stores the number of votes for every user for a proposal
+    mapping(uint256 => mapping(address => uint256)) public override numVotes;
     
     // Used to store the timestamp of the proposal which has been queued/ongoing
     uint256 currentEpoch;
@@ -82,6 +85,33 @@ contract GovernanceVoting is IGovernanceVoting {
         _registry = registry_;
 
         nativeToken = _token;
+
+        BALLOT_TYPEHASH = name_;
+    }
+
+    /** @dev Adds a charity to the current proposal
+             This only works if the charity is in the correct snapshot
+     */
+    function addCharity(address charity, uint256 amount) external virtual override returns (uint256) {
+        require(amount > 0, "Must request non-zero amounts");
+
+        require(msg.sender == _registry.governanceCharity(), "Only Charity can call");
+
+        // Make sure we have a proposal running
+        require(currentEpoch > 0, "Proposal not running");
+
+        // Fetch the current epoch
+        ProposalCore storage proposal = _proposals[currentEpoch];
+
+        // Make sure that the proposal voting has not started yet
+        require(proposal.voteStart.getDeadline() > block.timestamp);
+
+        // If all tests pass then add the charity
+        CharityState storage entry = charityVotes[currentEpoch][charity];
+        entry.charity = charity;
+        entry.amount = amount;
+
+        return currentEpoch;
     }
 
     /**
@@ -176,7 +206,7 @@ contract GovernanceVoting is IGovernanceVoting {
     function _getVotes(
         address account,
         uint256 blockNumber
-    ) internal view virtual override returns (uint256) {
+    ) internal view virtual returns (uint256) {
         return IVotes(_registry.governanceToken()).getPastVotes(account, blockNumber);
     }
 
@@ -184,7 +214,7 @@ contract GovernanceVoting is IGovernanceVoting {
      * @dev Register a vote for `proposalId` by `account` with a given `support`, voting `weight` and voting `params`.
      *
      * Note: Support is generic and can represent various things depending on the voting system used.
-     */
+     
     function _countVote(
         uint256 proposalId,
         address account,
@@ -192,6 +222,8 @@ contract GovernanceVoting is IGovernanceVoting {
         uint256 weight,
         bytes memory params
     ) internal virtual;
+
+    */
 
     /**
      * @dev Default additional encoded parameters used by castVote methods that don't include them
@@ -296,7 +328,7 @@ contract GovernanceVoting is IGovernanceVoting {
             Delete the executed epoch and then queue a new one
      */
     function _afterExecute(
-        uint256 proposalId
+        uint256 /* proposalId */
     ) internal {
         currentEpoch = 0;
 
@@ -307,34 +339,22 @@ contract GovernanceVoting is IGovernanceVoting {
      * @dev See {IGovernor-getVotes}.
      */
     function getVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
-        return _getVotes(account, blockNumber, _defaultParams());
+        return _getVotes(account, blockNumber);
     }
 
-    /**
-     * @dev See {IGovernor-getVotesWithParams}.
-     */
-    function getVotesWithParams(
-        address account,
-        uint256 blockNumber,
-        bytes memory params
-    ) public view virtual override returns (uint256) {
-        return _getVotes(account, blockNumber, params);
-    }
-
-    function _castVote(uint256 proposalId, address voter, address charity, string calldata description) internal returns (uint256 votes) {
+    function _castVote(uint256 proposalId, address voter, address charity, string memory description) internal returns (uint256 votes) {
         require(proposalId == currentEpoch, "Voting for invalid proposal");
 
-        ProposalCore memory proposal = _proposals[proposalId];
-
-        require(block.timestamp < proposal.voteEnd);
-        require(block.timestamp > proposal.voteStart);
+        ProposalState status = state(proposalId);
+        require(status == ProposalState.Active, "Not active proposal");
 
         // Get governance token
         IGovernanceToken govToken = IGovernanceToken(_registry.governanceToken());
-        uint256 balance = govToken.balanceOf(voter);
-        require(balance > 0, "No votes to vote with");
+        votes = govToken.balanceOf(voter);
+        require(votes > 0, "No votes to vote with");
 
-        charityVotes[proposalId][charity].votes += balance;
+        numVotes[proposalId][voter] += votes;
+        charityVotes[proposalId][charity].votes += votes;
 
 
         // If the new charity has overtaken the current leader in votes
@@ -343,7 +363,9 @@ contract GovernanceVoting is IGovernanceVoting {
             proposalWinners[proposalId] = charityVotes[proposalId][charity];
         }
 
-        govToken.transferFrom(voter, address(this), balance);
+        govToken.transferFrom(voter, address(this), votes);
+
+        emit VoteCast(voter, proposalId, charity, votes, description);
 
         
 
