@@ -79,10 +79,10 @@ contract GovernanceVoting is IGovernanceVoting {
     /**
      * @dev Sets the value for {name} and {registry}
      */
-    constructor(string memory name_, IGovernanceRegistry registry_, address _token) {
+    constructor(string memory name_, address registry_, address _token) {
         _name = name_;
         // Set registry to allow for contract address lookup
-        _registry = registry_;
+        _registry = IGovernanceRegistry(registry_);
 
         nativeToken = _token;
 

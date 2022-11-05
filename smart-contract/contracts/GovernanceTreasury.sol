@@ -14,8 +14,8 @@ contract GovernanceTreasury is IGovernanceTreasury {
     
     IGovernanceRegistry private immutable _registry;
 
-    constructor(IGovernanceRegistry registry_) {
-        _registry = registry_;
+    constructor(address registry_) {
+        _registry = IGovernanceRegistry(registry_);
     }
 
     function deposit(

@@ -20,11 +20,11 @@ contract GovernanceToken is IGovernanceToken, ERC20Votes {
 
     //----------------------------------------------------- misc functions
 
-    constructor(IGovernanceRegistry registry_)
+    constructor(address registry_)
         ERC20("GovernanceToken", "GT")
         ERC20Permit("GovernanceToken")
     {
-        _registry = registry_;
+        _registry = IGovernanceRegistry(registry_);
     }
 
     //----------------------------------------------------- mint and burn
