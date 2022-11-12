@@ -14,12 +14,11 @@ interface IERC20Decimals {
     function decimals() external view returns (uint8);
 }
 
-contract GovernanceTreasury is IGovernanceTreasury, Ownable {
-    uint internal constant ETH_DECIMALS = 10**18;
 
-contract GovernanceTreasury is IGovernanceTreasury {
+contract GovernanceTreasury is IGovernanceTreasury, Ownable {
     using SafeERC20 for IERC20;
-    
+
+    uint internal constant ETH_DECIMALS = 10**18;
     IGovernanceRegistry private immutable _registry;
     mapping(address => address) private _priceFeeds;
 
@@ -57,7 +56,7 @@ contract GovernanceTreasury is IGovernanceTreasury {
             (bool success, ) = to.call{ value: amount, gas: 2300 }("");
             require(success, "Transfer failed");
         } else {
-             IERC20(token).safeTransfer(receiver, amount);
+             IERC20(tokenAddr).safeTransfer(to, amount);
         }
         
     }
