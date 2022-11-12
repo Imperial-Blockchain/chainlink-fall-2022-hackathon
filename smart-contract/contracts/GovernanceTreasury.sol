@@ -59,6 +59,7 @@ contract GovernanceTreasury is IGovernanceTreasury, Ownable {
              IERC20(tokenAddr).safeTransfer(to, amount);
         }
         
+        emit SentFunds(tokenAddr, to, amount);
     }
 
     function registry() external view override returns (address) {
