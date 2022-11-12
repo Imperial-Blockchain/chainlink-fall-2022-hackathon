@@ -1,0 +1,78 @@
+type Charity @entity {
+  account: Bytes! # address
+  proof: Bytes! # bytes
+  verified: bool! # bool
+}
+
+# type ExampleEntity @entity {
+#   id: ID!
+#   count: BigInt!
+#   previousOwner: Bytes! # address
+#   newOwner: Bytes! # address
+# }
+# type ProposalCreated @entity {
+#   id: ID!
+#   epoch: BigInt! # uint256
+#   proposer: Bytes! # address
+#   startTimestamp: BigInt! # uint256
+#   endTimestamp: BigInt! # uint256
+#   description: String! # string
+# }
+
+# type ProposalExecuted @entity {
+#   id: ID!
+#   proposalId: BigInt! # uint256
+# }
+
+# type VoteCast @entity {
+#   id: ID!
+#   voter: Bytes! # address
+#   proposalId: BigInt! # uint256
+#   charity: Bytes! # address
+#   votes: BigInt! # uint256
+#   description: String! # string
+# }
+# type Deposited @entity {
+#   id: ID!
+#   token: Bytes! # address
+#   tokenAmount: BigInt! # uint256
+#   voteTokenAmount: BigInt! # uint256
+# }
+
+# type GovernanceTreasuryOwnershipTransferred @entity {
+#   id: ID!
+#   previousOwner: Bytes! # address
+#   newOwner: Bytes! # address
+# }
+# type Approval @entity {
+#   id: ID!
+#   owner: Bytes! # address
+#   spender: Bytes! # address
+#   value: BigInt! # uint256
+# }
+
+# type DelegateChanged @entity {
+#   id: ID!
+#   delegator: Bytes! # address
+#   fromDelegate: Bytes! # address
+#   toDelegate: Bytes! # address
+# }
+
+# type DelegateVotesChanged @entity {
+#   id: ID!
+#   delegate: Bytes! # address
+#   previousBalance: BigInt! # uint256
+#   newBalance: BigInt! # uint256
+# }
+
+# type Transfer @entity {
+#   id: ID!
+#   from: Bytes! # address
+#   to: Bytes! # address
+#   value: BigInt! # uint256
+# }
+# type GovernanceRegistryOwnershipTransferred @entity {
+#   id: ID!
+#   previousOwner: Bytes! # address
+#   newOwner: Bytes! # address
+# }

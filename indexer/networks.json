@@ -1,0 +1,19 @@
+{
+  "goerli": {
+    "GovernanceCharity": {
+      "address": "0x6B1302475dcD79fB3509565FcFc60280055277FC"
+    },
+    "GovernanceVoting": {
+      "address": "0x2F6F8aCB9c029E736f4f4a85E9D214800E2E0928"
+    },
+    "GovernanceTreasury": {
+      "address": "0xb6981167dF8A978EaD98a29d3e5faF9305AC3b63"
+    },
+    "GovernanceToken": {
+      "address": "0xA50f7E5f209fe1D171777Ebab69e211C3bf67702"
+    },
+    "GovernanceRegistry": {
+      "address": "0xa24F5713E4AF49cF9476fA23b7815820B76878eD"
+    }
+  }
+}
