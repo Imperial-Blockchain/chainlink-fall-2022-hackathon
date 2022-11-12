@@ -1,4 +1,6 @@
 import { Dialog } from "@headlessui/react";
+import { submitVoteTokens } from "../../utils";
+
 import PropTypes from "prop-types";
 
 const Modal = ({
@@ -21,8 +23,8 @@ const Modal = ({
       <div className="fixed inset-0 overflow-y-auto">
         <div className="flex min-h-full items-center justify-center p-4">
           <Dialog.Panel className="bg-gray-800 text-gray-100 rounded-lg p-4 w-auto max-w-md flex flex-col justify-center items-center">
-            <Dialog.Title calssName="w-full bg-white mt-1">
-              <h2 className="text-2xl font-bold">{title}</h2>
+            <Dialog.Title className="w-full text-center mt-1 text-2xl font-bold">
+              {title}
             </Dialog.Title>
             <img src={imgUrl} alt="Logo" className="w-56" />
             <h2 className="text-lg font-bold">Amount needed: {amount}$</h2>
@@ -31,11 +33,14 @@ const Modal = ({
               More information about the project
             </a>
             <div className="flex w-full justify-evenly">
-              <button class="bg-blue-600 hover:bg-blue-300 text-white font-bold py-2 px-4 mt-2 rounded">
+              <button
+                className="bg-blue-600 hover:bg-blue-300 text-white font-bold py-2 px-4 mt-2 rounded"
+                onClick={submitVoteTokens}
+              >
                 Vote
               </button>
               <button
-                class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 mt-2 rounded"
+                className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 mt-2 rounded"
                 onClick={() => handleOpenAndClose(false)}
               >
                 Cancel

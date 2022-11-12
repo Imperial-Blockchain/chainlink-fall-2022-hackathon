@@ -11,8 +11,8 @@ const Footer = () => {
           <span>Get connected with us on social networks:</span>
         </div>
         <div className="flex justify-center">
-          {footerIcons.map((icon) => (
-            <a href="#!" className="mr-6 text-gray-100">
+          {footerIcons.map((icon, idx) => (
+            <a key={idx} href="#!" className="mr-6 text-gray-100">
               {icon}
             </a>
           ))}

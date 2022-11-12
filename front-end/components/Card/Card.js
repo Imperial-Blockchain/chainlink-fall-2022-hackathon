@@ -14,7 +14,7 @@ const Card = ({ as, cardProps }) => {
   return null;
 };
 
-Card.PropTypes = {
+Card.propTypes = {
   type: PropTypes.string,
   cardProps: PropTypes.object,
 };
