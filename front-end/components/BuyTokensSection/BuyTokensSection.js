@@ -1,5 +1,6 @@
 import { ConnectButton } from "web3uikit";
 import { useRouter } from "next/router";
+import { buyVoteTokens } from "../../utils";
 
 const BuyTokensSection = () => {
   const router = useRouter();
@@ -16,14 +17,17 @@ const BuyTokensSection = () => {
 
       <h3 className="mt-3 mb-2 text-lg font-bold">Step 2: Buy voting tokens</h3>
 
-      <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 mt-2 rounded">
+      <button
+        onClick={buyVoteTokens}
+        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 mt-2 rounded"
+      >
         Buy tokens
       </button>
 
       <h3 className="mt-3 mb-2 text-lg font-bold">Step 3: Help others</h3>
 
       <button
-        class="bg-gray-100 hover:bg-gray-200 text-blue-900 font-bold py-2 px-4 mt-2 rounded"
+        className="bg-gray-100 hover:bg-gray-200 text-blue-900 font-bold py-2 px-4 mt-2 rounded"
         onClick={handleVoteNowClick}
       >
         Vote Now

@@ -17,7 +17,6 @@ const navigation = [
 export default function Navbar() {
   const router = useRouter();
   const currentPath = router.pathname;
-  console.log(currentPath);
 
   return (
     <Disclosure as="nav" className="bg-gray-800 mb-4">
