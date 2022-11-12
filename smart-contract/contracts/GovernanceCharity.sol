@@ -57,6 +57,8 @@ contract GovernanceCharity is IGovernanceCharity, Ownable {
 
         // Make a call to GovernanceVoting to try add the charity to the current proposal
         epoch = IGovernanceVoting(IGovernanceRegistry(registry).governanceVoter()).addCharity(msg.sender, amount);
+    
+        emit RequestedFunding(msg.sender, amount, epoch);
     }
 
     function cancelRequest() 
@@ -66,6 +68,8 @@ contract GovernanceCharity is IGovernanceCharity, Ownable {
     {
         // Wipe out charity entry from a pending proposal
         IGovernanceVoting(IGovernanceRegistry(registry).governanceVoter()).removeCharity(msg.sender);
+
+        emit CancelledFunding(msg.sender);
     }
 
     //----------------------------------------------------- accessors

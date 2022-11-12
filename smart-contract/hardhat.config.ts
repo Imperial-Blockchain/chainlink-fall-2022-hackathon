@@ -8,9 +8,9 @@ import "solidity-coverage";
 import "hardhat-deploy";
 import { HardhatUserConfig } from "hardhat/config";
 
-const SECRET_KEY_1 = process.env.SECRET_KEY_1 || "";
-const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "";
-const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL || "";
+const SECRET_KEY_1 = process.env.SECRET_KEY_1 || "0x0000000000000000000000000000000000000000000000000000000000000000";
+const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "0x0000000000000000000000000000000000000000000000000000000000000000";
+const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL || "0x0000000000000000000000000000000000000000000000000000000000000000";
 
 const config: HardhatUserConfig = {
     defaultNetwork: "hardhat",
