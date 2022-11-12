@@ -1,28 +1,35 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { networkConfig, developmentChains } from "../utils/const";
+import { networkConfig, developmentChains, ZERO_ADDRESS } from "../utils/const";
 import { ethers } from "hardhat";
 import { GovernanceRegistry } from "../typechain-types";
 
 const setupContracts: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     // @ts-ignore
     const { getNamedAccounts, deployments, network } = hre;
-    const { log } = deployments;
+    const { log, get } = deployments;
     const { deployer } = await getNamedAccounts();
-    const registry: GovernanceRegistry = await ethers.getContract("GovernanceRegistry", deployer);
-    const token = await ethers.getContract("GovernanceToken", deployer);
-    const charity = await ethers.getContract("GovernanceCharity", deployer);
-    const voting = await ethers.getContract("GovernanceVoting", deployer);
-    const treasury = await ethers.getContract("GovernanceTreasury", deployer);
+
+    const registryAddr = await get("GovernanceRegistry");
+    const registry: GovernanceRegistry = await ethers.getContractAt(
+        "GovernanceRegistry",
+        registryAddr.address
+    );
+    const tokenAddr = await get("GovernanceToken");
+    const charityAddr = await get("GovernanceCharity");
+    const votingAddr = await get("GovernanceVoting");
+    const treasuryAddr = await get("GovernanceTreasury");
 
     log("Setting up contracts for roles...");
     const initTx = await registry.init(
-        token.address,
-        charity.address,
-        voting.address,
-        treasury.address
+        tokenAddr.address,
+        charityAddr.address,
+        votingAddr.address,
+        treasuryAddr.address,
+        ZERO_ADDRESS
     );
     await initTx.wait(1);
+    log("Contracts deployed successfully.");
 };
 
 export default setupContracts;
