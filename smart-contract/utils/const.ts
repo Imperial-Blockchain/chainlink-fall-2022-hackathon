@@ -1,5 +1,11 @@
 export interface networkConfigItem {
-    name?: string;
+    name: string;
+    GovernanceRegistry?: string;
+    GovernanceToken?: string;
+    GovernanceCharity?: string;
+    GovernanceVoting?: string;
+    GovernanceVoting_name?: string;
+    GovernanceTreasury?: string;
 }
 
 export interface networkConfigInfo {
