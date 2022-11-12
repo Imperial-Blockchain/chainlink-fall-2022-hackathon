@@ -2,8 +2,13 @@ import { ConnectButton } from "web3uikit";
 import { useRouter } from "next/router";
 import { buyVoteTokens } from "../../utils";
 
+import { useRef } from "react";
+
 const BuyTokensSection = () => {
   const router = useRouter();
+  const amountRef = useRef();
+
+  console.dir(amountRef);
 
   const handleVoteNowClick = () => {
     router.push("/current-contest");
@@ -17,8 +22,14 @@ const BuyTokensSection = () => {
 
       <h3 className="mt-3 mb-2 text-lg font-bold">Step 2: Buy voting tokens</h3>
 
+      <input
+        className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-2 leading-tight focus:outline-none focus:bg-white"
+        type="number"
+        placeholder="Amount of ETH to Transfer / Min: 0.001 ETH"
+        ref={amountRef}
+      />
       <button
-        onClick={buyVoteTokens}
+        onClick={() => buyVoteTokens(amountRef.current.value)}
         className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 mt-2 rounded"
       >
         Buy tokens
