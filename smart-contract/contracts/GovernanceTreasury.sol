@@ -8,6 +8,7 @@ import "./interfaces/IGovernanceToken.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 interface IERC20Decimals {
     function decimals() external view returns (uint8);
@@ -16,11 +17,14 @@ interface IERC20Decimals {
 contract GovernanceTreasury is IGovernanceTreasury, Ownable {
     uint internal constant ETH_DECIMALS = 10**18;
 
+contract GovernanceTreasury is IGovernanceTreasury {
+    using SafeERC20 for IERC20;
+    
     IGovernanceRegistry private immutable _registry;
     mapping(address => address) private _priceFeeds;
 
-    constructor(IGovernanceRegistry registry_) {
-        _registry = registry_;
+    constructor(address registry_) {
+        _registry = IGovernanceRegistry(registry_);
     }
 
     /// @dev If ETH is sent, the function arguments are ignored.
@@ -43,6 +47,7 @@ contract GovernanceTreasury is IGovernanceTreasury, Ownable {
 
     function sendFunds(address tokenAddr, address to, uint amount) external {
         // only governance voting
+        require(msg.sender == _registry.governanceVoter(), "Unauthorised caller");
 
         // burn the governance tokens
         IGovernanceToken govToken = IGovernanceToken(_registry.governanceToken());
@@ -51,13 +56,16 @@ contract GovernanceTreasury is IGovernanceTreasury, Ownable {
         if (tokenAddr == address(0)) {
             (bool success, ) = to.call{ value: amount, gas: 2300 }("");
             require(success, "Transfer failed");
+        } else {
+             IERC20(token).safeTransfer(receiver, amount);
         }
+        
     }
 
     function registry() external view override returns (address) {
         return address(_registry);
     }
-
+    
     function setPriceFeed(address token, address feed) external override onlyOwner {
         _priceFeeds[token] = feed;
     }

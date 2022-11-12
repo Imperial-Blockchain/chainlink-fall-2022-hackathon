@@ -14,6 +14,16 @@ contract GovernanceRegistry is IGovernanceRegistry, Ownable {
     address public override governanceTreasury;
     address public override tokenRegistry;
 
+
+    function init(address token, address charity, address voter, address treasury, address registry) external onlyOwner {
+        // Set contract addresses
+        governanceToken = token;
+        governanceCharity = charity;
+        governanceVoter = voter;
+        governanceTreasury = treasury;
+        tokenRegistry = registry;
+    }
+
     function setGovernanceToken(address token) external override onlyOwner {
         governanceToken = token;
     }

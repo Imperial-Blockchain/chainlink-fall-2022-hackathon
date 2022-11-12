@@ -2,7 +2,10 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+
 import "./interfaces/IGovernanceCharity.sol";
+import "./interfaces/IGovernanceVoting.sol";
+import "./interfaces/IGovernanceRegistry.sol";
 
 contract GovernanceCharity is IGovernanceCharity, Ownable {
     //----------------------------------------------------- storage
@@ -43,19 +46,27 @@ contract GovernanceCharity is IGovernanceCharity, Ownable {
         emit Verified(charity);
     }
 
-    function requestFunding(uint256 amount, uint256 timestamp)
+    function requestFunding(uint256 amount)
         external
         override
         onlyVerified(msg.sender)
         returns (uint256 epoch)
-    {}
+    {
+        // Check we have non-zero amount
+        require(amount > 0, "Must request non-zero amounts");
 
-    function cancelRequest(uint256 epoch) external {}
+        // Make a call to GovernanceVoting to try add the charity to the current proposal
+        epoch = IGovernanceVoting(IGovernanceRegistry(registry).governanceVoter()).addCharity(msg.sender, amount);
+    }
 
-    function changeFundingAmount(uint256 epoch, uint256 newAmount)
+    function cancelRequest() 
         external
-        returns (bool isAccepted)
-    {}
+        override
+        onlyVerified(msg.sender) 
+    {
+        // Wipe out charity entry from a pending proposal
+        IGovernanceVoting(IGovernanceRegistry(registry).governanceVoter()).removeCharity(msg.sender);
+    }
 
     //----------------------------------------------------- accessors
 

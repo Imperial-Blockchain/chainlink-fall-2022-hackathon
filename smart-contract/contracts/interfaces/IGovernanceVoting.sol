@@ -11,13 +11,10 @@ pragma solidity ^0.8.9;
  */
 abstract contract IGovernanceVoting {
     enum ProposalState {
+        None,
         Pending,
         Active,
-        Canceled,
-        Defeated,
-        Succeeded,
         Queued,
-        Expired,
         Executed
     }
 
@@ -25,20 +22,12 @@ abstract contract IGovernanceVoting {
      * @dev Emitted when a proposal is created.
      */
     event ProposalCreated(
-        uint256 proposalId,
+        uint256 epoch,
         address proposer,
-        address[] charities,
-        string[] signatures,
-        bytes[] calldatas,
-        uint256 startBlock,
-        uint256 endBlock,
+        uint256 startTimestamp,
+        uint256 endTimestamp,
         string description
     );
-
-    /**
-     * @dev Emitted when a proposal is canceled.
-     */
-    event ProposalCanceled(uint256 proposalId);
 
     /**
      * @dev Emitted when a proposal is executed.
@@ -50,22 +39,8 @@ abstract contract IGovernanceVoting {
      *
      * Note: `support` values should be seen as buckets. Their interpretation depends on the voting module used.
      */
-    event VoteCast(address indexed voter, uint256 proposalId, uint8 support, uint256 weight, string reason);
+    event VoteCast(address indexed voter, uint256 proposalId, address charity, uint256 votes, string description);
 
-    /**
-     * @dev Emitted when a vote is cast with params.
-     *
-     * Note: `support` values should be seen as buckets. Their interpretation depends on the voting module used.
-     * `params` are additional encoded parameters. Their intepepretation also depends on the voting module used.
-     */
-    event VoteCastWithParams(
-        address indexed voter,
-        uint256 proposalId,
-        uint8 support,
-        uint256 weight,
-        string reason,
-        bytes params
-    );
 
     /**
      * @notice module:core
@@ -80,38 +55,11 @@ abstract contract IGovernanceVoting {
     function version() public view virtual returns (string memory);
 
     /**
-     * @notice module:voting
-     * @dev A description of the possible `support` values for {castVote} and the way these votes are counted, meant to
-     * be consumed by UIs to show correct vote options and interpret the results. The string is a URL-encoded sequence of
-     * key-value pairs that each describe one aspect, for example `support=bravo&quorum=for,abstain`.
-     *
-     * There are 2 standard keys: `support` and `quorum`.
-     *
-     * - `support=bravo` refers to the vote options 0 = Against, 1 = For, 2 = Abstain, as in `GovernorBravo`.
-     * - `quorum=bravo` means that only For votes are counted towards quorum.
-     * - `quorum=for,abstain` means that both For and Abstain votes are counted towards quorum.
-     *
-     * If a counting module makes use of encoded `params`, it should  include this under a `params` key with a unique
-     * name that describes the behavior. For example:
-     *
-     * - `params=fractional` might refer to a scheme where votes are divided fractionally between for/against/abstain.
-     * - `params=erc721` might refer to a scheme where specific NFTs are delegated to vote.
-     *
-     * NOTE: The string can be decoded by the standard
-     * https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams[`URLSearchParams`]
-     * JavaScript class.
-     */
-    // solhint-disable-next-line func-name-mixedcase
-    function COUNTING_MODE() public pure virtual returns (string memory);
-
-    /**
      * @notice module:core
      * @dev Hashing function used to (re)build the proposal id from the proposal details..
      */
     function hashProposal(
-        address[] memory charities,
-        uint256 epoch,
-        bytes32 descriptionHash
+        uint256 epoch
     ) public pure virtual returns (uint256);
 
     /**
@@ -150,16 +98,6 @@ abstract contract IGovernanceVoting {
      * duration compared to the voting delay.
      */
     function votingPeriod() public view virtual returns (uint256);
-
-    /**
-     * @notice module:user-config
-     * @dev Minimum number of cast voted required for a proposal to be successful.
-     *
-     * Note: The `blockNumber` parameter corresponds to the snapshot used for counting vote. This allows to scale the
-     * quorum depending on values such as the totalSupply of a token at this block (see {ERC20Votes}).
-     */
-    function quorum(uint256 blockNumber) public view virtual returns (uint256);
-
     /**
      * @notice module:reputation
      * @dev Voting power of an `account` at a specific `blockNumber`.
@@ -168,22 +106,11 @@ abstract contract IGovernanceVoting {
      * multiple), {ERC20Votes} tokens.
      */
     function getVotes(address account, uint256 blockNumber) public view virtual returns (uint256);
-
-    /**
-     * @notice module:reputation
-     * @dev Voting power of an `account` at a specific `blockNumber` given additional encoded parameters.
-     */
-    function getVotesWithParams(
-        address account,
-        uint256 blockNumber,
-        bytes memory params
-    ) public view virtual returns (uint256);
-
     /**
      * @notice module:voting
      * @dev Returns whether `account` has cast a vote on `proposalId`.
      */
-    function hasVoted(uint256 proposalId, address account) public view virtual returns (bool);
+    function numVotes(uint256 proposalId, address account) external view virtual returns (uint256);
 
     /**
      * @dev Create a new proposal. Vote start {IGovernor-votingDelay} blocks after the proposal is created and ends
@@ -192,7 +119,6 @@ abstract contract IGovernanceVoting {
      * Emits a {ProposalCreated} event.
      */
     function propose(
-        address[] memory charities,
         string memory description
     ) public virtual returns (uint256 proposalId);
 
@@ -205,16 +131,24 @@ abstract contract IGovernanceVoting {
      * Note: some module can modify the requirements for execution, for example by adding an additional timelock.
      */
     function execute(
-        address[] memory charities,
-        bytes32 descriptionHash
-    ) public payable virtual returns (uint256 proposalId);
+        uint256 proposalId
+    ) public virtual returns (uint256);
+
+    /**
+     * @dev Add a charity to the queued proposal or to the next one if we register too late
+
+       Ensure only GovernanceCharity can call this function
+     */
+    function addCharity(address charity, uint256 amount) external virtual returns (uint256 epoch);
+
+    function removeCharity(address charity) external virtual;
 
     /**
      * @dev Cast a vote
      *
      * Emits a {VoteCast} event.
      */
-    function castVote(uint256 proposalId, uint8 support) public virtual returns (uint256 balance);
+    function castVote(uint256 proposalId, address charity) public virtual returns (uint256 balance);
 
     /**
      * @dev Cast a vote with a reason
@@ -223,27 +157,15 @@ abstract contract IGovernanceVoting {
      */
     function castVoteWithReason(
         uint256 proposalId,
-        uint8 support,
+        address charity,
         string calldata reason
-    ) public virtual returns (uint256 balance);
-
-    /**
-     * @dev Cast a vote with a reason and additional encoded parameters
-     *
-     * Emits a {VoteCast} or {VoteCastWithParams} event depending on the length of params.
-     */
-    function castVoteWithReasonAndParams(
-        uint256 proposalId,
-        uint8 support,
-        string calldata reason,
-        bytes memory params
     ) public virtual returns (uint256 balance);
 
     /**
      * @dev Cast a vote using the user's cryptographic signature.
      *
      * Emits a {VoteCast} event.
-     */
+     
     function castVoteBySig(
         uint256 proposalId,
         uint8 support,
@@ -251,19 +173,5 @@ abstract contract IGovernanceVoting {
         bytes32 r,
         bytes32 s
     ) public virtual returns (uint256 balance);
-
-    /**
-     * @dev Cast a vote with a reason and additional encoded parameters using the user's cryptographic signature.
-     *
-     * Emits a {VoteCast} or {VoteCastWithParams} event depending on the length of params.
-     */
-    function castVoteWithReasonAndParamsBySig(
-        uint256 proposalId,
-        uint8 support,
-        string calldata reason,
-        bytes memory params,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public virtual returns (uint256 balance);
+    */
 }

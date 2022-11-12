@@ -104,3 +104,8 @@ lint/tmp/
 lint/reports/
 
 gas-report.txt
+
+
+*.lock
+*.json
+*.ts
