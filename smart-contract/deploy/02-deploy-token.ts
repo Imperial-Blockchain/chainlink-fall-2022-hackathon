@@ -3,16 +3,17 @@ import { developmentChains, VERIFICATION_BLOCK_CONFIRMATIONS } from "../utils/co
 import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
-const deployRegistry: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+const deployToken: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { deployments, getNamedAccounts, network, ethers } = hre;
-    const { deploy, log } = deployments;
+    const { deploy, log, get } = deployments;
     const { deployer } = await getNamedAccounts();
     const waitBlockConfirmations = developmentChains.includes(network.name)
         ? 1
         : VERIFICATION_BLOCK_CONFIRMATIONS;
+    const registry = await get("GovernanceRegistry");
 
-    const args: any[] = [];
-    const registry = await deploy("GovernanceRegistry", {
+    const args: any[] = [registry.address];
+    const token = await deploy("GovernanceToken", {
         from: deployer,
         args: args,
         log: true,
@@ -21,10 +22,10 @@ const deployRegistry: DeployFunction = async (hre: HardhatRuntimeEnvironment) =>
 
     // verify the deployment
     if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
-        await verify(registry.address, args);
+        await verify(token.address, args);
     }
     log("----------------------------------------------------");
 };
 
-export default deployRegistry;
-deployRegistry.tags = ["all", "registry"];
+export default deployToken;
+deployToken.tags = ["all", "token"];
