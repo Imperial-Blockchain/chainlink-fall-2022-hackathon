@@ -1,7 +1,13 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const { setBalance } = require("@nomicfoundation/hardhat-network-helpers");
 
-let registry, charity, voting, token, treasury;
+
+let registry, charity, voting, token, treasury, mockToken, mockOracle;
+
+const decimals = 18//ethers.utils.parseUnits('1', '18');
+const amount = ethers.utils.parseUnits('1', decimals);
+const price = ethers.utils.parseUnits('2', decimals);
 
 let deployer, user;
 
@@ -15,17 +21,27 @@ async function setup() {
   let token = await (await ethers.getContractFactory("GovernanceToken")).deploy(registry.address);
   let tokenRegistry = await(await ethers.getContractFactory("TokenRegistry")).deploy();
 
+  await tokenRegistry.add(mockToken.address);
+  await tokenRegistry.add(ethers.constants.AddressZero);
+
   let treasury = await(await ethers.getContractFactory("GovernanceTreasury")).deploy(registry.address);
+
+  // Deploy mockOracle
+  let mockOracle = await (await ethers.getContractFactory("MockOracle")).deploy();
+  await mockOracle.setDecimals(decimals);
+  await mockOracle.setPrice(price);
+
+  await treasury.setPriceFeed(mockToken.address, mockOracle.address);
 
   // Set registry addresses
   await registry.init(token.address, charity.address, voting.address, treasury.address, tokenRegistry.address);
-  return [registry, charity, voting, token, treasury];
+  return [registry, charity, voting, token, treasury, mockToken, mockOracle];
 }
 
 describe("Contract Tests", function() {
   before(async function() {
     [deployer, user] = await ethers.getSigners();
-    [registry, charity, voting, token, treasury] = await setup();
+    [registry, charity, voting, token, treasury, mockToken, mockOracle] = await setup();
   });
 
   describe("Governance Registry", function() {
@@ -40,6 +56,9 @@ describe("Contract Tests", function() {
       await registry.setGovernanceTreasury(newVoting.address);
 
       expect(await registry.governanceTreasury()).to.be.equal(newVoting.address);
+
+      //Reset for future tests
+      await registry.setGovernanceTreasury(treasury.address);
     });
     it("Modify Treasury as User", async function() {
       let newVoting = await (await ethers.getContractFactory("GovernanceTreasury")).deploy(registry.address);
@@ -79,6 +98,34 @@ describe("Contract Tests", function() {
       expect(await charity.statusOf(user.address)).to.equal(2);
     });
   });
+  describe("Governance Treasury", function() {
+    before(async function() {
+      //Increase user's balance and mint tokens
+      await setBalance(user.address, amount);
+      await mockToken.mint(user.address, amount);
+      
+      expect(await mockToken.balanceOf(user.address)).to.be.equal(amount);
+      expect(await ethers.provider.getBalance(user.address)).to.be.equal(amount);
+    });
+    it("Deposit User Funds with ETH", async function() {
+      //Deposit funds
+      await treasury.connect(user).deposit(ethers.constants.AddressZero, 0, {value: amount.div(2)});
+      expect(await token.balanceOf(user.address)).to.be.equal(amount.div(2));
+    });
+    it("Deposit User Funds with ERC20", async function() {
+      //Get current token balance of user
+      let currentBalance = await token.balanceOf(user.address);
+      const oneToken = ethers.utils.parseUnits('1', decimals)
+
+      //Approve spending
+      await mockToken.connect(user).increaseAllowance(treasury.address, amount);
+      await treasury.connect(user).deposit(mockToken.address, amount);
+
+      expect(await token.balanceOf(user.address)).to.be.equal(currentBalance.add(amount.mul(oneToken).div(price)));
+
+      
+    });
+  });
   describe("Governance Voting", function() {
     it("Start Proposal", async function() {
       let blockNumber = await ethers.provider.getBlockNumber();
@@ -98,6 +145,7 @@ describe("Contract Tests", function() {
       //Create another proposal while the current one is running
       await expect(voting.connect(user).propose("New Epoch"))
       .to.be.revertedWith("Proposal is already running");
+
     });
   });
 
