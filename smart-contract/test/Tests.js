@@ -114,16 +114,27 @@ describe("Contract Tests", function() {
     });
     it("Deposit User Funds with ERC20", async function() {
       //Get current token balance of user
-      let currentBalance = await token.balanceOf(user.address);
+      const currentBalance = await token.balanceOf(user.address);
       const oneToken = ethers.utils.parseUnits('1', decimals)
 
       //Approve spending
       await mockToken.connect(user).increaseAllowance(treasury.address, amount);
-      await treasury.connect(user).deposit(mockToken.address, amount);
+      await treasury.connect(user).deposit(mockToken.address, amount.div(2));
 
-      expect(await token.balanceOf(user.address)).to.be.equal(currentBalance.add(amount.mul(oneToken).div(price)));
+      expect(await token.balanceOf(user.address)).to.be.equal(currentBalance.add(amount.div(2).mul(oneToken).div(price)));
 
       
+    });
+    it("Deposit User Funds with ERC20 and Non-Standard Decimal for Oracle", async function () {
+      const currentBalance = await token.balanceOf(user.address);
+      const newDecimals = 10;
+      const price = ethers.utils.parseUnits('1', newDecimals);
+
+      await mockOracle.setDecimals(newDecimals);
+      await mockOracle.setPrice(price);
+
+      await treasury.connect(user).deposit(mockToken.address, amount.div(2));
+      expect(await token.balanceOf(user.address)).to.be.equal(currentBalance.add(amount.div(2).mul(price).div(price)));
     });
   });
   describe("Governance Voting", function() {

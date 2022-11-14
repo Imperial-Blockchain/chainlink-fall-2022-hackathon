@@ -98,7 +98,7 @@ contract GovernanceTreasury is IGovernanceTreasury, Ownable {
 
     function _getDecimals(uint8 decimalsToken, uint8 decimalsFeed) internal pure returns (uint) {
         if (decimalsToken < decimalsFeed) return uint(ETH_DECIMALS + (decimalsFeed - decimalsToken));
-        else if (decimalsToken < decimalsFeed) return uint(ETH_DECIMALS - (decimalsToken - decimalsFeed));
+        else if (decimalsFeed < decimalsToken) return uint(ETH_DECIMALS - (decimalsToken - decimalsFeed));
         return ETH_DECIMALS;
     }
 }
