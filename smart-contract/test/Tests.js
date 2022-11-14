@@ -3,20 +3,20 @@ const { ethers } = require("hardhat");
 const { setBalance } = require("@nomicfoundation/hardhat-network-helpers");
 
 
-let registry, charity, voting, token, treasury, mockToken, mockOracle;
+let registry, charity, voting, token, treasury, tokenRegistry, mockToken, mockOracle;
 
 const decimals = 18//ethers.utils.parseUnits('1', '18');
 const amount = ethers.utils.parseUnits('1', decimals);
 const price = ethers.utils.parseUnits('2', decimals);
 
-let deployer, user;
+let deployer, user, alice;
 
 async function setup() {
   // Deploy contracts
   let registry = await (await ethers.getContractFactory("GovernanceRegistry")).deploy();
   let charity = await (await ethers.getContractFactory("GovernanceCharity")).deploy(registry.address);
 
-  let mockToken = await (await ethers.getContractFactory("MockERC20")).deploy();
+  let mockToken = await (await ethers.getContractFactory("MockERC20")).deploy(decimals);
   let voting = await (await ethers.getContractFactory("GovernanceVoting")).deploy("GOV", registry.address, mockToken.address);
   let token = await (await ethers.getContractFactory("GovernanceToken")).deploy(registry.address);
   let tokenRegistry = await(await ethers.getContractFactory("TokenRegistry")).deploy();
@@ -35,13 +35,13 @@ async function setup() {
 
   // Set registry addresses
   await registry.init(token.address, charity.address, voting.address, treasury.address, tokenRegistry.address);
-  return [registry, charity, voting, token, treasury, mockToken, mockOracle];
+  return [registry, charity, voting, token, treasury, tokenRegistry, mockToken, mockOracle];
 }
 
 describe("Contract Tests", function() {
   before(async function() {
-    [deployer, user] = await ethers.getSigners();
-    [registry, charity, voting, token, treasury, mockToken, mockOracle] = await setup();
+    [deployer, user, alice] = await ethers.getSigners();
+    [registry, charity, voting, token, treasury, tokenRegistry, mockToken, mockOracle] = await setup();
   });
 
   describe("Governance Registry", function() {
@@ -128,13 +128,40 @@ describe("Contract Tests", function() {
     it("Deposit User Funds with ERC20 and Non-Standard Decimal for Oracle", async function () {
       const currentBalance = await token.balanceOf(user.address);
       const newDecimals = 10;
-      const price = ethers.utils.parseUnits('1', newDecimals);
+      const oneToken = ethers.utils.parseUnits('1', newDecimals);
+      const price = ethers.utils.parseUnits('10', newDecimals);
 
       await mockOracle.setDecimals(newDecimals);
       await mockOracle.setPrice(price);
 
       await treasury.connect(user).deposit(mockToken.address, amount.div(2));
-      expect(await token.balanceOf(user.address)).to.be.equal(currentBalance.add(amount.div(2).mul(price).div(price)));
+      expect(await token.balanceOf(user.address)).to.be.equal(currentBalance.add(amount.div(2).mul(oneToken).div(price)));
+
+      await mockOracle.setDecimals(decimals);
+      await mockOracle.setPrice(ethers.utils.parseUnits('2', decimals));
+    });
+    it("Deposit User Funds with ERC20 with Non-standard Decimal", async function () {
+      const a = ethers.utils.parseUnits('1', 20)
+      //Deploy a new ERC20 token
+      const newToken = await (await ethers.getContractFactory('MockERC20')).deploy(20);
+      await newToken.mint(alice.address, a);
+      //check what happens if we try to deposit with a non-approved token
+      await expect(treasury.connect(alice).deposit(newToken.address, 0))
+      .to.be.revertedWith("Invalid token address");
+      
+      await tokenRegistry.add(newToken.address);
+      await treasury.setPriceFeed(newToken.address, mockOracle.address);
+
+      //approvals
+      await newToken.connect(alice).increaseAllowance(treasury.address, a);
+
+      await treasury.connect(alice).deposit(newToken.address, a);
+
+      const calc = a.div(10 ** (20 - 18)).mul(amount).div(price)
+
+      expect(await token.balanceOf(alice.address)).to.be.equal(calc);
+
+
     });
   });
   describe("Governance Voting", function() {
