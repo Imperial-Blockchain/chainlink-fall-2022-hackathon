@@ -1,3 +1,4 @@
+// graph deploy --studio chainlink-hackathon
 import { Address, BigInt } from "@graphprotocol/graph-ts";
 import {
   // GovernanceCharity,
@@ -6,6 +7,7 @@ import {
   RequestedFunding as RequestedFundingEvent,
   CancelledFunding as CancelledFundingEvent,
 } from "../generated/GovernanceCharity/GovernanceCharity";
+import { SentFunds as SentFundsEvent } from "../generated/GovernanceTreasury/GovernanceTreasury";
 import { Charity, FundingRequest } from "../generated/schema";
 
 export function handleRegistered(event: RegisteredEvent): void {
@@ -47,13 +49,13 @@ export function handleRequestedFunding(event: RequestedFundingEvent): void {
 }
 
 export function handleCancelledFunding(event: CancelledFundingEvent): void {
-  const id = getFundingRequestIdFromEventParams(
-    event.params.charity,
-    event.params.epoch
-  );
-  let fundingRequest = FundingRequest.load(id);
-  fundingRequest!.cancelled = true;
-  fundingRequest.save();
+  // const id = getFundingRequestIdFromEventParams(
+  //   event.params.charity,
+  //   event.params.epoch
+  // );
+  // let fundingRequest = FundingRequest.load(id);
+  // fundingRequest!.cancelled = true;
+  // fundingRequest!.save();
 }
 
 // export function handleDeposited(event: DepositedEvent): void {}
