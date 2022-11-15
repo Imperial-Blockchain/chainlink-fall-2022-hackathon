@@ -12,13 +12,12 @@ export async function createProject(name, description, websiteUrl, imgUrl) {
   const signer = provider.getSigner();
 
   const contract = new ethers.Contract(address, abi, signer);
-  console.log(contract);
 
   try {
     const tx = await contract.register(encodedData);
     await tx.wait(1);
   } catch (err) {
-    console.error(err);
+    throw Error(err.message);
   }
   return;
 }

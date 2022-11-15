@@ -20,7 +20,7 @@ export async function buyVoteTokens(val) {
     );
     await tx.wait(1);
   } catch (err) {
-    console.error(err);
+    throw Error(err.message);
   }
 
   return;

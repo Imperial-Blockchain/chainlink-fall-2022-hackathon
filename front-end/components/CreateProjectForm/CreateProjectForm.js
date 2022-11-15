@@ -1,6 +1,6 @@
 import { createProject } from "../../utils";
 import { useRef } from "react";
-import { current } from "daisyui/src/colors";
+import { toast } from "react-toastify";
 
 const CreateProjectForm = () => {
   const nameRef = useRef("");
@@ -10,11 +10,18 @@ const CreateProjectForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    createProject(
-      nameRef.current.value,
-      descRef.current.value,
-      websiteUrlRef.current.value,
-      imgUrlRef.current.value
+    toast.promise(
+      createProject(
+        nameRef.current.value,
+        descRef.current.value,
+        websiteUrlRef.current.value,
+        imgUrlRef.current.value
+      ),
+      {
+        pending: "Pending...",
+        success: "Project added! Good Luck!",
+        error: "Oops. Something went wrong!",
+      }
     );
   };
 
@@ -34,7 +41,7 @@ const CreateProjectForm = () => {
             ref={nameRef}
           />
         </div>
-        <div className="w-full  px-3">
+        <div className="w-full px-3">
           <label
             className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
             htmlFor="grid-last-name"

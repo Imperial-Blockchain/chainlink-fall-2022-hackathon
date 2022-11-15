@@ -3,7 +3,7 @@ import footerIcons from "./footerIcons";
 const Footer = () => {
   return (
     <footer
-      className="mt-5 text-center lg:text-left bg-gray-900 text-gray-100"
+      className="mt-5 text-center lg:text-left bg-gradient-to-r from-gray-600 to-gray-800 text-gray-100"
       style={{ height: 150 }}
     >
       <div className="flex justify-center items-center lg:justify-between p-6 mb-0">

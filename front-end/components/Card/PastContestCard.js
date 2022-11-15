@@ -9,7 +9,7 @@ const PastContestCard = ({ id, name, imgUrl, description }) => {
 
   return (
     <div key={id} className="m-3 p-2">
-      <div className="card lg:card-side bg-base-100 shadow-xl">
+      <div className="card lg:card-side bg-gray-200 shadow-xl">
         <figure>
           <img className="w-72 h-auto" src={imgUrl} alt="Album" />
         </figure>

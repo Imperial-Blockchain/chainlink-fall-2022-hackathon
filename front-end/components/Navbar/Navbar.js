@@ -19,7 +19,10 @@ export default function Navbar() {
   const currentPath = router.pathname;
 
   return (
-    <Disclosure as="nav" className="bg-gray-800 mb-4">
+    <Disclosure
+      as="nav"
+      className="bg-gradient-to-r from-gray-600 to-gray-800 mb-4"
+    >
       {({ open }) => (
         <>
           <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">

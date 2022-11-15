@@ -16,7 +16,7 @@ const TimeLeftCounter = () => {
 
   return (
     <>
-      <div className="container mx-auto max-w-lg w-auto bg-gray-800 text-gray-100 p-3 rounded-lg">
+      <div className="container mx-auto max-w-lg w-auto bg-gradient-to-l from-gray-600 to-gray-800 text-gray-100 p-3 rounded-lg">
         <h3 className="mx-auto text-center text-lg">
           Time left till the end of the current contest:
         </h3>
