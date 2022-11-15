@@ -29,7 +29,7 @@ dataSources:
           handler: handleRequestedFunding
         - event: CancelledFunding(address)
           handler: handleCancelledFunding
-      file: ./src/governance-charity.ts
+      file: ./src/mapping.ts
   - kind: ethereum
     name: GovernanceTreasury
     network: goerli
@@ -41,14 +41,14 @@ dataSources:
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - Deposited
+        # - Deposited
         - SentFunds
       abis:
         - name: GovernanceTreasury
           file: ./abis/GovernanceTreasury.json
       eventHandlers:
-        - event: Deposited(indexed address,indexed uint256,indexed uint256)
-          handler: handleDeposited
+        # - event: Deposited(indexed address,indexed uint256,indexed uint256)
+        #   handler: handleDeposited
         - event: SentFunds(address,address,uint256)
           handler: handleSentFunds
-      file: ./src/governance-treasury.ts
+      file: ./src/mapping.ts

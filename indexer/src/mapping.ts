@@ -56,6 +56,18 @@ export function handleCancelledFunding(event: CancelledFundingEvent): void {
   fundingRequest.save();
 }
 
+// export function handleDeposited(event: DepositedEvent): void {}
+
+export function handleSentFunds(event: SentFundsEvent): void {
+  const id = getFundingRequestIdFromEventParams(
+    event.params.to,
+    event.params.epoch
+  );
+  let fundingRequest = FundingRequest.load(id);
+  fundingRequest!.funded = true;
+  fundingRequest!.save();
+}
+
 function getFundingRequestIdFromEventParams(
   charity: Address,
   epoch: BigInt
