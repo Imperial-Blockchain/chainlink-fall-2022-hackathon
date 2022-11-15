@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { setBalance } = require("@nomicfoundation/hardhat-network-helpers");
+const { setBalance, time } = require("@nomicfoundation/hardhat-network-helpers");
 
 
 let registry, charity, voting, token, treasury, tokenRegistry, mockToken, mockOracle;
@@ -184,6 +184,120 @@ describe("Contract Tests", function() {
       await expect(voting.connect(user).propose("New Epoch"))
       .to.be.revertedWith("Proposal is already running");
 
+    });
+    it("Request Funding from Charity", async function() {
+
+      let epoch = await voting.currentEpoch();
+      await expect(charity.connect(user).requestFunding(amount))
+      .to.emit(charity, "RequestedFunding")
+      .withArgs(user.address, amount, epoch); 
+
+      let entry = await voting.charityVotes(epoch, user.address);
+      expect(entry.charity).to.be.equal(user.address)
+      expect(entry.amount).to.be.equal(amount);
+
+    });
+    it("Cancel Funding from Charity", async function() {
+      await expect(charity.connect(user).cancelRequest())
+      .to.emit(charity, "CancelledFunding")
+      .withArgs(user.address);
+
+      let epoch = await voting.currentEpoch();
+      let entry = await voting.charityVotes(epoch, user.address);
+
+      expect(entry.charity).to.be.equal(ethers.constants.AddressZero);
+      expect(entry.amount).to.be.equal(0);
+
+
+      //Request funding again so everything else works
+      await charity.connect(user).requestFunding(amount);
+    });
+    it("Vote for the wrong proposal", async function() {
+
+      let epoch = await voting.currentEpoch();
+
+      await expect(voting.connect(alice).castVote(epoch.add(1), user.address))
+      .to.be.revertedWith("Voting for invalid proposal");
+    });
+    it("Vote before voting starts", async function() {
+      let epoch = await voting.currentEpoch();
+
+      await expect(voting.connect(alice).castVote(epoch, user.address))
+        .to.be.revertedWith("Not active proposal");
+
+      expect(await voting.state(epoch)).to.be.equal(1);
+    });
+    it("Cast Valid Vote", async function() {
+      // Go forward in time until we can start voting
+      let epoch = await voting.currentEpoch();
+      let delay = await voting.votingDelay();
+      let period = await voting.votingPeriod();
+
+      await time.increaseTo(epoch.add(delay));
+
+      let balance = await token.balanceOf(alice.address);
+
+      //Alice approves voting to use their tokens
+      await token.connect(alice).increaseAllowance(voting.address, balance);
+
+      //Cast VOte
+      await expect(voting.connect(alice).castVote(epoch, user.address))
+      .to.emit(voting, "VoteCast")
+      .withArgs(alice.address, epoch, user.address, balance, "");
+
+      let entry = await voting.charityVotes(epoch, user.address);
+      expect(entry.votes).to.be.equal(balance);
+
+    });
+    it("Cast Vote with no balance", async function() {
+      let epoch = await voting.currentEpoch();
+      expect(await token.balanceOf(deployer.address)).to.be.equal(0);
+
+      await expect(voting.connect(deployer).castVote(epoch, user.address))
+        .to.be.revertedWith("No votes to vote with");
+    });
+    it("Vote with second user", async function() {
+      let epoch = await voting.currentEpoch();
+      let currentVotes = (await voting.charityVotes(epoch, user.address)).votes;
+
+      let balance = await token.balanceOf(user.address);
+
+      await token.connect(user).increaseAllowance(voting.address, balance);
+      await voting.connect(user).castVote(epoch, user.address);
+
+      let entry = await voting.charityVotes(epoch, user.address);
+
+      expect(entry.votes).to.be.equal(currentVotes.add(balance));
+    });
+    it("Execute Proposal", async function() {
+      let epoch = await voting.currentEpoch();
+      
+      //Try to execute proposal before voting finishes
+      await expect(voting.execute(epoch))
+      .to.be.revertedWith("Governor: proposal not successful");
+
+      //Fast forward in time
+      let delay = await voting.votingDelay();
+      let period = await voting.votingPeriod();
+
+      await time.increaseTo(epoch.add(delay).add(period).add(1));
+
+      //We should be in the queued state
+      expect(await voting.state(epoch)).to.be.equal(3);
+
+      //Execute the proposal
+      await expect(voting.execute(epoch))
+      .to.emit(treasury, "SentFunds")
+      .withArgs(mockToken.address, user.address, amount, epoch);
+
+
+      //Make sure a new proposal has started
+      const newEpoch = await voting.currentEpoch();
+      expect(newEpoch).to.not.be.equal(epoch);
+      expect(await voting.state(newEpoch)).to.be.equal(1);
+
+      //Make sure charity has been paid
+      expect(await mockToken.balanceOf(user.address)).to.be.equal(amount);
     });
   });
 

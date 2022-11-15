@@ -47,7 +47,7 @@ contract GovernanceTreasury is IGovernanceTreasury, Ownable {
         }
     }
 
-    function sendFunds(address tokenAddr, address to, uint amount) external {
+    function sendFunds(address tokenAddr, address to, uint amount, uint256 epoch) external {
         // only governance voting
         require(msg.sender == _registry.governanceVoter(), "Unauthorised caller");
 
@@ -56,13 +56,21 @@ contract GovernanceTreasury is IGovernanceTreasury, Ownable {
         govToken.burn(msg.sender, amount);
 
         if (tokenAddr == address(0)) {
+            if(address(this).balance < amount) {
+                amount = address(this).balance;
+            }
+
             (bool success, ) = to.call{ value: amount, gas: 2300 }("");
             require(success, "Transfer failed");
         } else {
+            if (IERC20(tokenAddr).balanceOf(address(this)) < amount) {
+                amount = IERC20(tokenAddr).balanceOf(address(this));
+            }
+
              IERC20(tokenAddr).safeTransfer(to, amount);
         }
         
-        emit SentFunds(tokenAddr, to, amount);
+        emit SentFunds(tokenAddr, to, amount, epoch);
     }
 
     function registry() external view override returns (address) {

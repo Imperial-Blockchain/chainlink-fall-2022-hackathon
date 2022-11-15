@@ -53,13 +53,13 @@ contract GovernanceVoting is IGovernanceVoting {
     // Used to store the current winner of a proposal
     mapping(uint256 => CharityState) private proposalWinners;
 
-    mapping(uint256 => mapping(address => CharityState)) private charityVotes;
+    mapping(uint256 => mapping(address => CharityState)) public charityVotes;
 
     // Stores the number of votes for every user for a proposal
     mapping(uint256 => mapping(address => uint256)) public override numVotes;
     
     // Used to store the timestamp of the proposal which has been queued/ongoing
-    uint256 currentEpoch;
+    uint256 public currentEpoch;
 
     /**
      * @dev Restricts a function so it can only be executed through governance proposals. For example, governance
@@ -324,7 +324,7 @@ contract GovernanceVoting is IGovernanceVoting {
         // Fetch the charity which won the proposal
         CharityState memory charity = proposalWinners[proposalId];
 
-        IGovernanceTreasury(_registry.governanceTreasury()).sendFunds(nativeToken, charity.charity, charity.amount);
+        IGovernanceTreasury(_registry.governanceTreasury()).sendFunds(nativeToken, charity.charity, charity.amount, proposalId);
         
 
     }
