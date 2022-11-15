@@ -18,7 +18,7 @@ interface IERC20Decimals {
 contract GovernanceTreasury is IGovernanceTreasury, Ownable {
     using SafeERC20 for IERC20;
 
-    uint internal constant ETH_DECIMALS = 10**18;
+    uint internal constant ETH_DECIMALS = 18;
     IGovernanceRegistry private immutable _registry;
     mapping(address => address) private _priceFeeds;
 
@@ -28,12 +28,15 @@ contract GovernanceTreasury is IGovernanceTreasury, Ownable {
 
     /// @dev If ETH is sent, the function arguments are ignored.
     function deposit(address tokenAddr, uint256 amount) external payable override {
+        require(ITokenRegistry(_registry.tokenRegistry()).authorized(tokenAddr), "Invalid token address");
+
         IGovernanceToken govToken = IGovernanceToken(_registry.governanceToken());
-        if (msg.value > 0) {
+        if (tokenAddr == address(0)) {
             // if ETH
             govToken.mint(msg.sender, msg.value);
             emit Deposited(address(0), msg.value, msg.value);
         } else {
+            require(msg.value == 0, "Invalid msg amount");
             // if not ETH
             // price feed exists, i.e. token is authorized
             // this contract approved to transferFrom amount
@@ -44,7 +47,7 @@ contract GovernanceTreasury is IGovernanceTreasury, Ownable {
         }
     }
 
-    function sendFunds(address tokenAddr, address to, uint amount) external {
+    function sendFunds(address tokenAddr, address to, uint amount, uint256 epoch) external {
         // only governance voting
         require(msg.sender == _registry.governanceVoter(), "Unauthorised caller");
 
@@ -53,12 +56,21 @@ contract GovernanceTreasury is IGovernanceTreasury, Ownable {
         govToken.burn(msg.sender, amount);
 
         if (tokenAddr == address(0)) {
+            if(address(this).balance < amount) {
+                amount = address(this).balance;
+            }
+
             (bool success, ) = to.call{ value: amount, gas: 2300 }("");
             require(success, "Transfer failed");
         } else {
+            if (IERC20(tokenAddr).balanceOf(address(this)) < amount) {
+                amount = IERC20(tokenAddr).balanceOf(address(this));
+            }
+
              IERC20(tokenAddr).safeTransfer(to, amount);
         }
         
+        emit SentFunds(tokenAddr, to, amount, epoch);
     }
 
     function registry() external view override returns (address) {
@@ -89,12 +101,12 @@ contract GovernanceTreasury is IGovernanceTreasury, Ownable {
         (, int256 price, , , ) = feed.latestRoundData();
         require(price > 0, "Invalid Price");
 
-        return (decimals * amount) / uint(price);
+        return ((10 ** decimals) * amount) / uint(price);
     }
 
     function _getDecimals(uint8 decimalsToken, uint8 decimalsFeed) internal pure returns (uint) {
         if (decimalsToken < decimalsFeed) return uint(ETH_DECIMALS + (decimalsFeed - decimalsToken));
-        else if (decimalsToken < decimalsFeed) return uint(ETH_DECIMALS - (decimalsToken - decimalsFeed));
+        else if (decimalsFeed < decimalsToken) return uint(ETH_DECIMALS - (decimalsToken - decimalsFeed));
         return ETH_DECIMALS;
     }
 }

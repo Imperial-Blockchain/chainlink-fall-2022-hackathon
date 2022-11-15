@@ -21,12 +21,18 @@ interface IGovernanceCharity {
 
     //----------------------------------------------------- events
 
+
     /// @notice Emitted when a charity is registered to be verified.
     event Registered(address charity, bytes proof);
 
     /// @notice Emitted when a charity is verified.
     event Verified(address charity);
 
+    /// @notice Emitted when a charity requests funding
+    event RequestedFunding(address charity, uint256 amount, uint256 epoch);
+
+    /// @notice Emitted when a charity cancels their funding request
+    event CancelledFunding(address charity);
     //----------------------------------------------------- external functions
 
     function register(bytes calldata proof) external;
