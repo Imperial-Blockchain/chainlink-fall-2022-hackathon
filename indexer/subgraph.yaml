@@ -13,45 +13,23 @@ dataSources:
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - OwnershipTransferred
         - Registered
         - Verified
+        - RequestedFunding
+        - CancelledFunding
       abis:
         - name: GovernanceCharity
           file: ./abis/GovernanceCharity.json
       eventHandlers:
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
         - event: Registered(address,bytes)
           handler: handleRegistered
         - event: Verified(address)
           handler: handleVerified
+        - event: RequestedFunding(address,uint256,uint256)
+          handler: handleRequestedFunding
+        - event: CancelledFunding(address)
+          handler: handleCancelledFunding
       file: ./src/governance-charity.ts
-  - kind: ethereum
-    name: GovernanceVoting
-    network: goerli
-    source:
-      address: "0x2F6F8aCB9c029E736f4f4a85E9D214800E2E0928"
-      abi: GovernanceVoting
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.6
-      language: wasm/assemblyscript
-      entities:
-        - ProposalCreated
-        - ProposalExecuted
-        - VoteCast
-      abis:
-        - name: GovernanceVoting
-          file: ./abis/GovernanceVoting.json
-      eventHandlers:
-        - event: ProposalCreated(uint256,address,uint256,uint256,string)
-          handler: handleProposalCreated
-        - event: ProposalExecuted(uint256)
-          handler: handleProposalExecuted
-        - event: VoteCast(indexed address,uint256,address,uint256,string)
-          handler: handleVoteCast
-      file: ./src/governance-voting.ts
   - kind: ethereum
     name: GovernanceTreasury
     network: goerli
@@ -64,60 +42,13 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Deposited
-        - GovernanceTreasuryOwnershipTransferred
+        - SentFunds
       abis:
         - name: GovernanceTreasury
           file: ./abis/GovernanceTreasury.json
       eventHandlers:
         - event: Deposited(indexed address,indexed uint256,indexed uint256)
           handler: handleDeposited
-        - event: GovernanceTreasuryOwnershipTransferred(indexed address,indexed address)
-          handler: handleGovernanceTreasuryOwnershipTransferred
+        - event: SentFunds(address,address,uint256)
+          handler: handleSentFunds
       file: ./src/governance-treasury.ts
-  - kind: ethereum
-    name: GovernanceToken
-    network: goerli
-    source:
-      address: "0xA50f7E5f209fe1D171777Ebab69e211C3bf67702"
-      abi: GovernanceToken
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.6
-      language: wasm/assemblyscript
-      entities:
-        - Approval
-        - DelegateChanged
-        - DelegateVotesChanged
-        - Transfer
-      abis:
-        - name: GovernanceToken
-          file: ./abis/GovernanceToken.json
-      eventHandlers:
-        - event: Approval(indexed address,indexed address,uint256)
-          handler: handleApproval
-        - event: DelegateChanged(indexed address,indexed address,indexed address)
-          handler: handleDelegateChanged
-        - event: DelegateVotesChanged(indexed address,uint256,uint256)
-          handler: handleDelegateVotesChanged
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
-      file: ./src/governance-token.ts
-  - kind: ethereum
-    name: GovernanceRegistry
-    network: goerli
-    source:
-      address: "0xa24F5713E4AF49cF9476fA23b7815820B76878eD"
-      abi: GovernanceRegistry
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.6
-      language: wasm/assemblyscript
-      entities:
-        - GovernanceRegistryOwnershipTransferred
-      abis:
-        - name: GovernanceRegistry
-          file: ./abis/GovernanceRegistry.json
-      eventHandlers:
-        - event: GovernanceRegistryOwnershipTransferred(indexed address,indexed address)
-          handler: handleGovernanceRegistryOwnershipTransferred
-      file: ./src/governance-registry.ts

@@ -1,3 +1,4 @@
+import { Address, BigInt } from "@graphprotocol/graph-ts";
 import {
   // GovernanceCharity,
   Registered as RegisteredEvent,
@@ -5,7 +6,7 @@ import {
   RequestedFunding as RequestedFundingEvent,
   CancelledFunding as CancelledFundingEvent,
 } from "../generated/GovernanceCharity/GovernanceCharity";
-import { Charity } from "../generated/schema";
+import { Charity, FundingRequest } from "../generated/schema";
 
 export function handleRegistered(event: RegisteredEvent): void {
   let charity = Charity.load(event.params.charity.toHexString());
@@ -28,6 +29,36 @@ export function handleVerified(event: VerifiedEvent): void {
   charity.save();
 }
 
-export function handleRequestedFunding(event: RequestedFundingEvent): void {}
+export function handleRequestedFunding(event: RequestedFundingEvent): void {
+  const id = getFundingRequestIdFromEventParams(
+    event.params.charity,
+    event.params.epoch
+  );
+  let fundingRequest = FundingRequest.load(id);
+  if (!fundingRequest) {
+    fundingRequest = new FundingRequest(id);
+    fundingRequest.charity = event.params.charity;
+  }
+  fundingRequest.amount = event.params.amount;
+  fundingRequest.epoch = event.params.epoch;
+  fundingRequest.funded = false;
+  fundingRequest.cancelled = false;
+  fundingRequest.save();
+}
 
-export function handleCancelledFunding(event: CancelledFundingEvent): void {}
+export function handleCancelledFunding(event: CancelledFundingEvent): void {
+  const id = getFundingRequestIdFromEventParams(
+    event.params.charity,
+    event.params.epoch
+  );
+  let fundingRequest = FundingRequest.load(id);
+  fundingRequest!.cancelled = true;
+  fundingRequest.save();
+}
+
+function getFundingRequestIdFromEventParams(
+  charity: Address,
+  epoch: BigInt
+): string {
+  return charity.toHexString() + epoch.toHexString();
+}
