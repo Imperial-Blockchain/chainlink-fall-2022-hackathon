@@ -14,11 +14,10 @@ interface IERC20Decimals {
     function decimals() external view returns (uint8);
 }
 
-
 contract GovernanceTreasury is IGovernanceTreasury, Ownable {
     using SafeERC20 for IERC20;
 
-    uint internal constant ETH_DECIMALS = 18;
+    uint256 internal constant ETH_DECIMALS = 18;
     IGovernanceRegistry private immutable _registry;
     mapping(address => address) private _priceFeeds;
 
@@ -28,7 +27,7 @@ contract GovernanceTreasury is IGovernanceTreasury, Ownable {
 
     /// @dev If ETH is sent, the function arguments are ignored.
     function deposit(address tokenAddr, uint256 amount) external payable override {
-        require(ITokenRegistry(_registry.tokenRegistry()).authorized(tokenAddr), "Invalid token address");
+        // require(ITokenRegistry(_registry.tokenRegistry()).authorized(tokenAddr), "Invalid token address");
 
         IGovernanceToken govToken = IGovernanceToken(_registry.governanceToken());
         if (tokenAddr == address(0)) {
@@ -41,13 +40,18 @@ contract GovernanceTreasury is IGovernanceTreasury, Ownable {
             // price feed exists, i.e. token is authorized
             // this contract approved to transferFrom amount
             IERC20(tokenAddr).transferFrom(msg.sender, address(this), amount);
-            uint voteAmount = _getAmountVoteToken(tokenAddr, amount);
+            uint256 voteAmount = _getAmountVoteToken(tokenAddr, amount);
             govToken.mint(msg.sender, voteAmount);
             emit Deposited(tokenAddr, amount, voteAmount);
         }
     }
 
-    function sendFunds(address tokenAddr, address to, uint amount, uint256 epoch) external {
+    function sendFunds(
+        address tokenAddr,
+        address to,
+        uint256 amount,
+        uint256 epoch
+    ) external {
         // only governance voting
         require(msg.sender == _registry.governanceVoter(), "Unauthorised caller");
 
@@ -56,27 +60,27 @@ contract GovernanceTreasury is IGovernanceTreasury, Ownable {
         govToken.burn(msg.sender, amount);
 
         if (tokenAddr == address(0)) {
-            if(address(this).balance < amount) {
+            if (address(this).balance < amount) {
                 amount = address(this).balance;
             }
 
-            (bool success, ) = to.call{ value: amount, gas: 2300 }("");
+            (bool success, ) = to.call{value: amount, gas: 2300}("");
             require(success, "Transfer failed");
         } else {
             if (IERC20(tokenAddr).balanceOf(address(this)) < amount) {
                 amount = IERC20(tokenAddr).balanceOf(address(this));
             }
 
-             IERC20(tokenAddr).safeTransfer(to, amount);
+            IERC20(tokenAddr).safeTransfer(to, amount);
         }
-        
+
         emit SentFunds(tokenAddr, to, amount, epoch);
     }
 
     function registry() external view override returns (address) {
         return address(_registry);
     }
-    
+
     function setPriceFeed(address token, address feed) external override onlyOwner {
         _priceFeeds[token] = feed;
     }
@@ -86,7 +90,11 @@ contract GovernanceTreasury is IGovernanceTreasury, Ownable {
     }
 
     /// @dev Logic to get the amount of token votes to transfer: $$p_f \frac{p_t d_t}{p_{ETH} d_{ETH}} \frac{d_{ETH}}{d_t} = p_f d_f
-    function _getAmountVoteToken(address tokenAddr, uint amount) internal view returns (uint256) {
+    function _getAmountVoteToken(address tokenAddr, uint256 amount)
+        internal
+        view
+        returns (uint256)
+    {
         // check token authorized
         address feedAddr = _priceFeeds[tokenAddr];
         require(feedAddr != address(0), "Invalid Token");
@@ -95,18 +103,20 @@ contract GovernanceTreasury is IGovernanceTreasury, Ownable {
         // get decimals
         uint8 tokenDecimals = IERC20Decimals(tokenAddr).decimals(); // the decimals function is not mandatory according to EIP20
         uint8 feedDecimals = feed.decimals();
-        uint decimals = _getDecimals(tokenDecimals, feedDecimals);
+        uint256 decimals = _getDecimals(tokenDecimals, feedDecimals);
 
         // get price
         (, int256 price, , , ) = feed.latestRoundData();
         require(price > 0, "Invalid Price");
 
-        return ((10 ** decimals) * amount) / uint(price);
+        return ((10**decimals) * amount) / uint256(price);
     }
 
-    function _getDecimals(uint8 decimalsToken, uint8 decimalsFeed) internal pure returns (uint) {
-        if (decimalsToken < decimalsFeed) return uint(ETH_DECIMALS + (decimalsFeed - decimalsToken));
-        else if (decimalsFeed < decimalsToken) return uint(ETH_DECIMALS - (decimalsToken - decimalsFeed));
+    function _getDecimals(uint8 decimalsToken, uint8 decimalsFeed) internal pure returns (uint256) {
+        if (decimalsToken < decimalsFeed)
+            return uint256(ETH_DECIMALS + (decimalsFeed - decimalsToken));
+        else if (decimalsFeed < decimalsToken)
+            return uint256(ETH_DECIMALS - (decimalsToken - decimalsFeed));
         return ETH_DECIMALS;
     }
 }
