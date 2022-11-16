@@ -1,5 +1,6 @@
 import Card from "../../components/Card";
 import TimeLeftCounter from "../../components/TimeLeftCounter";
+import { getCurrentContest } from "../../utils";
 
 import fs from "fs";
 

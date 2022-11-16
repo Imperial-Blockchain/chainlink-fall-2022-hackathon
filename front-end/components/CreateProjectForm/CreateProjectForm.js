@@ -19,7 +19,8 @@ const CreateProjectForm = () => {
       ),
       {
         pending: "Pending...",
-        success: "Project added! Good Luck!",
+        success:
+          "Project added! As soon as it is verified by our team, it can start collect funding! Good Luck!",
         error: "Oops. Something went wrong!",
       }
     );

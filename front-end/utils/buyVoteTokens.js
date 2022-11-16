@@ -16,10 +16,11 @@ export async function buyVoteTokens(val) {
     const tx = await contract.deposit(
       "0x0000000000000000000000000000000000000000",
       amountETH,
-      { value: amountETH }
+      { value: amountETH, gasLimit: 80000000 }
     );
     await tx.wait(1);
   } catch (err) {
+    console.error(err);
     throw Error(err.message);
   }
 
