@@ -19,17 +19,16 @@ const ProjectCard = ({
         <div
           className="h-48 lg:h-auto lg:w-48 flex-none bg-cover rounded-t lg:rounded-t-none lg:rounded-l text-center overflow-hidden bg-center"
           style={{
-            backgroundImage:
-              "url('https://pbs.twimg.com/profile_images/808330362417979392/AdiQ86lk_400x400.jpg')",
+            backgroundImage: imgUrl
+              ? imgUrl
+              : "url('https://pbs.twimg.com/profile_images/808330362417979392/AdiQ86lk_400x400.jpg')",
           }}
           title="unicef"
         ></div>
         <div className="border-r border-b border-l border-gray-400 lg:border-l-0 lg:border-t lg:border-gray-400 bg-white rounded-b lg:rounded-b-none lg:rounded-r p-4 flex flex-col justify-between leading-normal">
           <div className="mb-8">
             <div className="text-gray-900 font-bold text-xl mb-2">{name}</div>
-            <p className="text-gray-700 text-base">
-              {description.substring(0, 100) + "..."}
-            </p>
+            <p className="text-gray-700 text-base">{description}</p>
           </div>
 
           <button

@@ -1,6 +1,6 @@
 import { buyVoteTokens } from "./buyVoteTokens";
 import { createProject } from "./createProject";
 import { submitVoteTokens } from "./submitVoteTokens";
-import { getCurrentContest } from "./getCurrentContest";
+import { useCurrentContest } from "./hooks/useCurrentContest";
 
-export { buyVoteTokens, createProject, submitVoteTokens, getCurrentContest };
+export { buyVoteTokens, createProject, submitVoteTokens, useCurrentContest };

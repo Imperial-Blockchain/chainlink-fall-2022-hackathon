@@ -14,7 +14,7 @@ export async function createProject(name, description, websiteUrl, imgUrl) {
   const contract = new ethers.Contract(address, abi, signer);
 
   try {
-    const tx = await contract.register(encodedData, { gasLimit: 80000000 });
+    const tx = await contract.register(encodedData, { gasLimit: 800000 });
     await tx.wait(1);
   } catch (err) {
     throw Error(err.message);
