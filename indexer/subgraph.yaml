@@ -6,7 +6,7 @@ dataSources:
     name: GovernanceCharity
     network: goerli
     source:
-      address: "0x6B1302475dcD79fB3509565FcFc60280055277FC"
+      address: "0x310fdf3f57604d0BA77e34B0244e8d1D2285b5E2"
       abi: GovernanceCharity
       startBlock: 7959026
     mapping:
@@ -35,7 +35,7 @@ dataSources:
     name: GovernanceTreasury
     network: goerli
     source:
-      address: "0xb6981167dF8A978EaD98a29d3e5faF9305AC3b63"
+      address: "0xA1cd82197a0a64cbCa6402117C4AF973e9e67632"
       abi: GovernanceTreasury
       startBlock: 7959042
     mapping:
