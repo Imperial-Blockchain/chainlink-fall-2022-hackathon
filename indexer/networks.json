@@ -1,0 +1,10 @@
+{
+  "goerli": {
+    "GovernanceCharity": {
+      "address": "0x310fdf3f57604d0BA77e34B0244e8d1D2285b5E2"
+    },
+    "GovernanceTreasury": {
+      "address": "0xA1cd82197a0a64cbCa6402117C4AF973e9e67632"
+    }
+  }
+}

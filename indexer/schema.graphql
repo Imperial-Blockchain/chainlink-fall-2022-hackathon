@@ -1,0 +1,15 @@
+type Charity @entity {
+  id: ID!
+  account: Bytes! # address
+  proof: Bytes # bytes
+  verified: Boolean! # bool
+}
+
+type FundingRequest @entity {
+  id: ID!
+  charity: Bytes!
+  amount: BigInt!
+  epoch: BigInt!
+  funded: Boolean!
+  cancelled: Boolean!
+}
